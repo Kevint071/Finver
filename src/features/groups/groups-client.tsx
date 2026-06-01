@@ -168,18 +168,13 @@ export function GroupsClient({
             >
               {/* Group info row - clickable to expand */}
               <div
-                role="button"
-                tabIndex={0}
-                className="flex items-center justify-between gap-3 cursor-pointer"
-                onClick={() => setExpandedGroupId(isExpanded ? null : group.id)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setExpandedGroupId(isExpanded ? null : group.id);
-                  }
-                }}
+                className="flex w-full items-center justify-between gap-3"
               >
-                <div className="flex items-center gap-3 min-w-0">
+                <button
+                  type="button"
+                  className="flex flex-1 items-center gap-3 min-w-0 cursor-pointer text-left"
+                  onClick={() => setExpandedGroupId(isExpanded ? null : group.id)}
+                >
                   <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
                       isActive ? "bg-emerald-900/40" : "bg-zinc-800"
@@ -212,17 +207,14 @@ export function GroupsClient({
                       </span>
                     </div>
                   </div>
-                </div>
+                </button>
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 shrink-0">
                   {!isActive && (
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSwitch(group.id);
-                      }}
+                      onClick={() => handleSwitch(group.id)}
                       disabled={switching !== null}
                       className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                         switching === group.id
@@ -233,11 +225,17 @@ export function GroupsClient({
                       {switching === group.id ? "..." : "Activar"}
                     </button>
                   )}
-                  <ChevronDown
-                    className={`size-4 text-zinc-500 transition-transform ${
-                      isExpanded ? "rotate-180" : ""
-                    }`}
-                  />
+                  <button
+                    type="button"
+                    className="cursor-pointer"
+                    onClick={() => setExpandedGroupId(isExpanded ? null : group.id)}
+                  >
+                    <ChevronDown
+                      className={`size-4 text-zinc-500 transition-transform ${
+                        isExpanded ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
                 </div>
               </div>
 

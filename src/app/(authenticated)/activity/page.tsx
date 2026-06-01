@@ -13,7 +13,11 @@ export default async function ActivityPage() {
   await requireAuth();
   const membership = await requireGroupMembership();
 
-  const logs = await getAuditLogs(membership.groupId, { take: 100 });
+  const rawLogs = await getAuditLogs(membership.groupId, { take: 100 });
+  const logs = rawLogs.map((log) => ({
+    ...log,
+    createdAt: log.createdAt.toISOString(),
+  }));
 
   return (
     <div>

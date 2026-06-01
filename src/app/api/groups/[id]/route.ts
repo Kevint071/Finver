@@ -11,9 +11,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
-    const membership = await requireRole([MemberRole.OWNER, MemberRole.ADMIN]);
-    const { id } = await params;
+    const [user, membership, { id }] = await Promise.all([
+      requireAuth(),
+      requireRole([MemberRole.OWNER, MemberRole.ADMIN]),
+      params,
+    ]);
 
     if (membership.groupId !== id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -42,9 +44,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
-    const membership = await requireRole([MemberRole.OWNER]);
-    const { id } = await params;
+    const [user, membership, { id }] = await Promise.all([
+      requireAuth(),
+      requireRole([MemberRole.OWNER]),
+      params,
+    ]);
 
     if (membership.groupId !== id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });

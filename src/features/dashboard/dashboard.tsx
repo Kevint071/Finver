@@ -1,5 +1,6 @@
 import { getDashboardSummary, getMonthlyAnalytics } from "@/server/services/analytics.service";
 import { getMovements } from "@/server/services/movement.service";
+import { getActiveCategories } from "@/server/services/category.service";
 import { DashboardClient } from "./dashboard-client";
 
 interface DashboardProps {
@@ -8,10 +9,11 @@ interface DashboardProps {
 }
 
 export async function Dashboard({ groupId, groupName }: DashboardProps) {
-  const [summary, monthly, recentMovements] = await Promise.all([
+  const [summary, monthly, recentMovements, categories] = await Promise.all([
     getDashboardSummary(groupId),
     getMonthlyAnalytics(groupId),
     getMovements(groupId, { take: 10 }),
+    getActiveCategories(groupId),
   ]);
 
   const serializedMovements = recentMovements.map((m) => ({
@@ -33,6 +35,7 @@ export async function Dashboard({ groupId, groupName }: DashboardProps) {
       monthlyIncome={monthly.monthlyIncome}
       monthlyExpense={monthly.monthlyExpense}
       recentMovements={serializedMovements}
+      categories={categories.map((c) => ({ id: c.id, name: c.name }))}
     />
   );
 }

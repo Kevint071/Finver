@@ -21,8 +21,10 @@ export async function getActiveGroupId(): Promise<string | null> {
 }
 
 export async function getCurrentUserMembership() {
-  const user = await requireAuth();
-  const activeGroupId = await getActiveGroupId();
+  const [user, activeGroupId] = await Promise.all([
+    requireAuth(),
+    getActiveGroupId(),
+  ]);
 
   if (activeGroupId) {
     const membership = await prisma.groupMember.findUnique({

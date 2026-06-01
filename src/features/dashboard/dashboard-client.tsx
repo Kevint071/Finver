@@ -22,6 +22,7 @@ interface DashboardClientProps {
   monthlyIncome: number;
   monthlyExpense: number;
   recentMovements: Movement[];
+  categories: { id: string; name: string }[];
 }
 
 const copFormatter = new Intl.NumberFormat("es-CO", {
@@ -42,6 +43,7 @@ export function DashboardClient({
   monthlyIncome,
   monthlyExpense,
   recentMovements,
+  categories,
 }: DashboardClientProps) {
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -151,7 +153,7 @@ export function DashboardClient({
         </button>
 
         {showAddModal && (
-          <AddMovementModal onClose={() => setShowAddModal(false)} />
+          <AddMovementModal onClose={() => setShowAddModal(false)} categories={categories} />
         )}
       </div>
     );

@@ -13,7 +13,12 @@ export default async function MovementsPage() {
   await requireAuth();
   const membership = await requireGroupMembership();
 
-  const movements = await getMovements(membership.groupId, { take: 100 });
+  const rawMovements = await getMovements(membership.groupId, { take: 100 });
+  const movements = rawMovements.map((m) => ({
+    ...m,
+    movementDate: m.movementDate.toISOString(),
+    createdAt: m.createdAt.toISOString(),
+  }));
 
   return (
     <div>

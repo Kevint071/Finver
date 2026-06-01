@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Pencil, Check, X } from "lucide-react";
 
 interface Movement {
@@ -49,9 +50,10 @@ export function MovementDetail({ movement }: MovementDetailProps) {
         setEditing(false);
         router.refresh();
       }
-    } finally {
-      setSaving(false);
+    } catch {
+      // silently fail
     }
+    setSaving(false);
   }
 
   const displayDate = new Date(movement.movementDate).toLocaleDateString(
@@ -65,9 +67,11 @@ export function MovementDetail({ movement }: MovementDetailProps) {
         {/* Creator */}
         <div className="flex items-center gap-2">
           {movement.creator.image ? (
-            <img
+            <Image
               src={movement.creator.image}
               alt={movement.creator.name ?? ""}
+              width={20}
+              height={20}
               className="size-5 rounded-full border border-zinc-700"
             />
           ) : (

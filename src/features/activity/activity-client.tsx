@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { DateSeparator } from "@/features/shared/date-separator";
 
 interface AuditLog {
@@ -67,9 +68,11 @@ export function ActivityClient({ logs }: ActivityClientProps) {
                   className="flex items-start gap-3 rounded-lg p-2"
                 >
                   {log.performer.image ? (
-                    <img
+                    <Image
                       src={log.performer.image}
                       alt={log.performer.name ?? ""}
+                      width={28}
+                      height={28}
                       className="size-7 shrink-0 rounded-full border border-zinc-700"
                     />
                   ) : (

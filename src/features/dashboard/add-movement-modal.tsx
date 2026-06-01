@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 
@@ -11,29 +11,20 @@ interface Category {
 
 interface AddMovementModalProps {
   onClose: () => void;
+  categories: Category[];
 }
 
-export function AddMovementModal({ onClose }: AddMovementModalProps) {
+export function AddMovementModal({ onClose, categories }: AddMovementModalProps) {
   const router = useRouter();
   const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE");
-  const [categoryId, setCategoryId] = useState("");
+  const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [movementDate, setMovementDate] = useState(
     new Date().toISOString().split("T")[0]
   );
-  const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/categories")
-      .then((res) => res.json())
-      .then((data) => {
-        setCategories(data);
-        if (data.length > 0) setCategoryId(data[0].id);
-      });
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

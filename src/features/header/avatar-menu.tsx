@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { LogOut } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
@@ -33,9 +34,11 @@ export function AvatarMenu({ userName, userImage, signOutAction }: AvatarMenuPro
         className="flex items-center rounded-full focus:outline-none focus:ring-2 focus:ring-zinc-600"
       >
         {userImage ? (
-          <img
+          <Image
             src={userImage}
             alt={userName ?? "Usuario"}
+            width={32}
+            height={32}
             className="size-8 rounded-full border border-zinc-700"
           />
         ) : (

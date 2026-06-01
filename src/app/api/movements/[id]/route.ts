@@ -15,9 +15,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
-    const membership = await requireGroupMembership();
-    const { id } = await params;
+    const [user, membership, { id }] = await Promise.all([
+      requireAuth(),
+      requireGroupMembership(),
+      params,
+    ]);
 
     const existing = await getMovementById(id);
     if (!existing || existing.groupId !== membership.groupId) {
@@ -84,9 +86,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
-    const membership = await requireGroupMembership();
-    const { id } = await params;
+    const [user, membership, { id }] = await Promise.all([
+      requireAuth(),
+      requireGroupMembership(),
+      params,
+    ]);
 
     const existing = await getMovementById(id);
     if (!existing || existing.groupId !== membership.groupId) {

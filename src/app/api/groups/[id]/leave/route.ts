@@ -8,8 +8,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
-    const { id } = await params;
+    const [user, { id }] = await Promise.all([requireAuth(), params]);
 
     await leaveGroup(id, user.id!);
 

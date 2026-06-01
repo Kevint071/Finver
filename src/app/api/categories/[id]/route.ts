@@ -11,9 +11,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
-    await requireRole([MemberRole.OWNER, MemberRole.ADMIN]);
-    const { id } = await params;
+    const [user, membership, { id }] = await Promise.all([
+      requireAuth(),
+      requireRole([MemberRole.OWNER, MemberRole.ADMIN]),
+      params,
+    ]);
 
     const body = await request.json();
     const parsed = updateCategorySchema.safeParse(body);
@@ -26,7 +28,6 @@ export async function PATCH(
     }
 
     const category = await updateCategory(id, parsed.data.name);
-    const membership = await requireRole([MemberRole.OWNER, MemberRole.ADMIN]);
 
     await createAuditLog(
       membership.groupId,
@@ -47,9 +48,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth();
-    const membership = await requireRole([MemberRole.OWNER, MemberRole.ADMIN]);
-    const { id } = await params;
+    const [user, membership, { id }] = await Promise.all([
+      requireAuth(),
+      requireRole([MemberRole.OWNER, MemberRole.ADMIN]),
+      params,
+    ]);
 
     const category = await deactivateCategory(id);
 

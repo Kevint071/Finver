@@ -134,7 +134,6 @@ export function GroupDetailPanel({
                 className="flex-1 rounded-lg border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100 focus:border-zinc-500 focus:outline-none"
                 maxLength={50}
                 aria-label="Nuevo nombre del grupo"
-                autoFocus
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleRename();
                   if (e.key === "Escape") setRenaming(false);

@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth, signIn } from "@/lib/auth";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -38,7 +38,6 @@ export default async function SignInPage() {
           <form
             action={async () => {
               "use server";
-              const { signIn } = await import("@/lib/auth");
               await signIn("google", { redirectTo: "/dashboard" });
             }}
           >
