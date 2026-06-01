@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts    Account[]
+  sessions    Session[]
+  memberships GroupMember[]
+  ownedGroups Group[]      @relation("GroupOwner")
+  movements   Movement[]   @relation("MovementCreator")
+  categories  Category[]   @relation("CategoryCreator")
+  auditLogs   AuditLog[]   @relation("AuditPerformer")
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Group {
+  id         String   @id @default(cuid())
+  name       String
+  inviteCode String   @unique
+  ownerId    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  owner      User          @relation("GroupOwner", fields: [ownerId], references: [id])
+  members    GroupMember[]
+  categories Category[]
+  movements  Movement[]
+  auditLogs  AuditLog[]
+}
+
+model GroupMember {
+  id       String      @id @default(cuid())
+  groupId  String
+  userId   String
+  role     MemberRole  @default(MEMBER)
+  joinedAt DateTime    @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  groupId   String
+  name      String
+  isActive  Boolean  @default(true)
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  creator   User      @relation("CategoryCreator", fields: [createdBy], references: [id])
+  movements Movement[]
+
+  @@unique([groupId, name])
+}
+
+model Movement {
+  id              String       @id @default(cuid())
+  groupId         String
+  categoryId      String
+  createdByUserId String
+  type            MovementType
+  amount          Int
+  description     String?
+  movementDate    DateTime
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id])
+  creator  User     @relation("MovementCreator", fields: [createdByUserId], references: [id])
+}
+
+enum MovementType {
+  INCOME
+  EXPENSE
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  groupId     String
+  performedBy String
+  eventType   EventType
+  description String
+  createdAt   DateTime  @default(now())
+
+  group     Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  performer User  @relation("AuditPerformer", fields: [performedBy], references: [id])
+}
+
+enum EventType {
+  MOVEMENT_CREATED
+  MOVEMENT_EDITED
+  MOVEMENT_DELETED
+  CATEGORY_CREATED
+  CATEGORY_EDITED
+  CATEGORY_DEACTIVATED
+  ROLE_CHANGED
+  OWNERSHIP_TRANSFERRED
+}
