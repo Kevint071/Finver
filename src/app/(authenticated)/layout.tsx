@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Header } from "@/features/header/header";
+import { MobileBottomNav } from "@/features/header/mobile-bottom-nav";
 import { getCurrentUserMembership } from "@/server/dal";
 
 export default async function AuthenticatedLayout({
@@ -24,9 +25,10 @@ export default async function AuthenticatedLayout({
         userImage={session.user.image ?? null}
         userRole={membership?.role ?? null}
       />
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 pb-16 md:pb-0">
         {children}
       </main>
+      <MobileBottomNav />
     </div>
   );
 }

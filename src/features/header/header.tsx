@@ -1,5 +1,4 @@
 import { NavLink } from "./nav-link";
-import { MobileNav } from "./mobile-nav";
 import { AvatarMenu } from "./avatar-menu";
 import { signOut } from "@/lib/auth";
 
@@ -41,16 +40,17 @@ export function Header({ groupName, userName, userImage }: HeaderProps) {
           />
         </nav>
 
-        {/* Mobile navigation */}
-        <MobileNav
-          navLinks={navLinks}
-          userName={userName}
-          userImage={userImage}
-          signOutAction={async () => {
-            "use server";
-            await signOut({ redirectTo: "/" });
-          }}
-        />
+        {/* Mobile avatar menu */}
+        <div className="md:hidden">
+          <AvatarMenu
+            userName={userName}
+            userImage={userImage}
+            signOutAction={async () => {
+              "use server";
+              await signOut({ redirectTo: "/" });
+            }}
+          />
+        </div>
       </div>
     </header>
   );
