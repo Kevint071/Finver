@@ -12,14 +12,23 @@ export default async function SignInPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
       <div className="w-full max-w-sm space-y-8">
+        {/* Branding */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-white">Finver</h1>
-          <p className="mt-2 text-zinc-400">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/20">
+            <span className="text-2xl font-bold text-white">F</span>
+          </div>
+          <h1 className="mt-4 text-3xl font-bold text-white">Finver</h1>
+          <p className="mt-2 text-sm text-zinc-400">
             Finanzas familiares simplificadas
           </p>
         </div>
 
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+        {/* Sign in card */}
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 backdrop-blur-sm">
+          <h2 className="mb-6 text-center text-sm font-medium text-zinc-300">
+            Inicia sesión para continuar
+          </h2>
+
           <form
             action={async () => {
               "use server";
@@ -29,7 +38,7 @@ export default async function SignInPage() {
           >
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-3 rounded-lg bg-white px-4 py-3 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-100"
+              className="flex w-full items-center justify-center gap-3 rounded-xl bg-white px-4 py-3.5 text-sm font-medium text-zinc-900 shadow-sm transition-all hover:bg-zinc-100 hover:shadow-md active:scale-[0.98]"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path
@@ -53,6 +62,11 @@ export default async function SignInPage() {
             </button>
           </form>
         </div>
+
+        {/* Footer */}
+        <p className="text-center text-xs text-zinc-600">
+          Al continuar, aceptas nuestros términos de uso
+        </p>
       </div>
     </div>
   );

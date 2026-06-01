@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownLeft, ArrowUpRight, Menu, Plus } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Plus } from "lucide-react";
 import { useState } from "react";
 import { AddMovementModal } from "./add-movement-modal";
 
@@ -34,7 +34,6 @@ function formatCOP(amount: number) {
 }
 
 export function DashboardClient({
-  groupName,
   balance,
   totalIncome,
   totalExpense,
@@ -45,20 +44,8 @@ export function DashboardClient({
   const [showAddModal, setShowAddModal] = useState(false);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
-          <h1 className="text-lg font-semibold">{groupName}</h1>
-          <a href="/settings" className="rounded-lg p-2 hover:bg-zinc-800">
-            <Menu className="h-5 w-5" />
-          </a>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-6 space-y-6">
-        {/* Balance Card */}
+    <div className="space-y-6">
+      {/* Balance Card */}
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-center">
           <p className="text-sm text-zinc-400">Balance actual</p>
           <p className={`mt-1 text-3xl font-bold ${balance >= 0 ? "text-emerald-400" : "text-red-400"}`}>
@@ -151,19 +138,18 @@ export function DashboardClient({
             </div>
           )}
         </div>
-      </main>
 
-      {/* FAB */}
-      <button
-        onClick={() => setShowAddModal(true)}
-        className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-white text-zinc-900 shadow-lg transition-transform hover:scale-105 active:scale-95"
-      >
-        <Plus className="h-6 w-6" />
-      </button>
+        {/* FAB */}
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-white text-zinc-900 shadow-lg transition-transform hover:scale-105 active:scale-95"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
 
-      {showAddModal && (
-        <AddMovementModal onClose={() => setShowAddModal(false)} />
-      )}
-    </div>
-  );
-}
+        {showAddModal && (
+          <AddMovementModal onClose={() => setShowAddModal(false)} />
+        )}
+      </div>
+    );
+  }

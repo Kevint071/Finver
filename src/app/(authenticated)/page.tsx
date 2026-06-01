@@ -1,5 +1,5 @@
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Dashboard } from "@/features/dashboard/dashboard";
 import { OnboardingPage } from "@/features/onboarding/onboarding-page";
