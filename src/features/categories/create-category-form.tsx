@@ -57,7 +57,7 @@ export function CreateCategoryForm({ onCreated }: CreateCategoryFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
+    <form onSubmit={handleSubmit} className="flex items-start gap-2">
       <div className="flex-1">
         <input
           type="text"
@@ -67,7 +67,9 @@ export function CreateCategoryForm({ onCreated }: CreateCategoryFormProps) {
           maxLength={30}
           className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
         />
-        {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+        <div className="min-h-5 mt-1">
+          {error && <p className="text-xs text-red-400">{error}</p>}
+        </div>
       </div>
       <button
         type="submit"
