@@ -11,7 +11,9 @@ interface HeaderProps {
 
 const navLinks = [
   { href: "/dashboard", label: "Inicio" },
+  { href: "/movements", label: "Movimientos" },
   { href: "/categories", label: "Categorías" },
+  { href: "/activity", label: "Actividad" },
   { href: "/groups", label: "Grupos" },
 ];
 

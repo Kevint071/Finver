@@ -60,6 +60,18 @@ export async function PATCH(
       `Movimiento editado (ID: ${id})`
     );
 
+    // Log date change specifically if movementDate was updated
+    if (parsed.data.movementDate && new Date(parsed.data.movementDate).toDateString() !== existing.movementDate.toDateString()) {
+      const oldDate = existing.movementDate.toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
+      const newDate = new Date(parsed.data.movementDate).toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
+      await createAuditLog(
+        membership.groupId,
+        user.id!,
+        EventType.MOVEMENT_DATE_CHANGED,
+        `Fecha de movimiento cambiada: ${oldDate} → ${newDate}`
+      );
+    }
+
     return NextResponse.json(movement);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Internal error";

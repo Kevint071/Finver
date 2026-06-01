@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Grid3X3, Users } from "lucide-react";
+import { Home, ArrowLeftRight, Grid3X3, Activity, Users } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Inicio", icon: Home },
+  { href: "/movements", label: "Movimientos", icon: ArrowLeftRight },
   { href: "/categories", label: "Categorías", icon: Grid3X3 },
+  { href: "/activity", label: "Actividad", icon: Activity },
   { href: "/groups", label: "Grupos", icon: Users },
 ];
 

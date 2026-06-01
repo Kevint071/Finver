@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { MemberRole, EventType } from "@/generated/prisma";
 import { nanoid } from "@/lib/nanoid";
+import { createAuditLog } from "./audit.service";
 
 export async function createGroup(name: string, userId: string) {
   const inviteCode = nanoid(8);
@@ -44,6 +45,18 @@ export async function joinGroup(inviteCode: string, userId: string) {
       role: MemberRole.MEMBER,
     },
   });
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { name: true },
+  });
+
+  await createAuditLog(
+    group.id,
+    userId,
+    EventType.MEMBER_JOINED,
+    `${user?.name ?? "Usuario"} se unió al grupo`
+  );
 
   return { group, member };
 }
