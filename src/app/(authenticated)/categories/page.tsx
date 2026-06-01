@@ -13,7 +13,7 @@ export default async function CategoriesPage() {
     include: { group: true },
   });
 
-  if (!membership) redirect("/");
+  if (!membership) redirect("/dashboard");
 
   const categories = await getActiveCategories(membership.groupId);
 

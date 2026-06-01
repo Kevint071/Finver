@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "./nav-link";
 
@@ -8,9 +8,10 @@ interface MobileNavProps {
   navLinks: { href: string; label: string }[];
   userName: string | null;
   userImage: string | null;
+  signOutAction: () => Promise<void>;
 }
 
-export function MobileNav({ navLinks, userName, userImage }: MobileNavProps) {
+export function MobileNav({ navLinks, userName, userImage, signOutAction }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -37,19 +38,30 @@ export function MobileNav({ navLinks, userName, userImage }: MobileNavProps) {
               </NavLink>
             ))}
           </nav>
-          <div className="mt-3 flex items-center gap-3 border-t border-zinc-800 pt-3">
-            {userImage ? (
-              <img
-                src={userImage}
-                alt={userName ?? "Usuario"}
-                className="h-8 w-8 rounded-full border border-zinc-700"
-              />
-            ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-xs font-medium text-zinc-300">
-                {userName?.charAt(0)?.toUpperCase() ?? "U"}
-              </div>
-            )}
-            <span className="text-sm text-zinc-300">{userName ?? "Usuario"}</span>
+          <div className="mt-3 flex items-center justify-between border-t border-zinc-800 pt-3">
+            <div className="flex items-center gap-3">
+              {userImage ? (
+                <img
+                  src={userImage}
+                  alt={userName ?? "Usuario"}
+                  className="h-8 w-8 rounded-full border border-zinc-700"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-xs font-medium text-zinc-300">
+                  {userName?.charAt(0)?.toUpperCase() ?? "U"}
+                </div>
+              )}
+              <span className="text-sm text-zinc-300">{userName ?? "Usuario"}</span>
+            </div>
+            <form action={signOutAction}>
+              <button
+                type="submit"
+                className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                Salir
+              </button>
+            </form>
           </div>
         </div>
       )}

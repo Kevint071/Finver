@@ -5,7 +5,7 @@ export default async function SignInPage() {
 
   if (session) {
     return (
-      <meta httpEquiv="refresh" content="0;url=/" />
+      <meta httpEquiv="refresh" content="0;url=/dashboard" />
     );
   }
 
@@ -33,7 +33,7 @@ export default async function SignInPage() {
             action={async () => {
               "use server";
               const { signIn } = await import("@/lib/auth");
-              await signIn("google", { redirectTo: "/" });
+              await signIn("google", { redirectTo: "/dashboard" });
             }}
           >
             <button

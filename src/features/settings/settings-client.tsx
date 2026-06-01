@@ -62,7 +62,7 @@ export function SettingsClient({
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-lg items-center gap-3 px-4 py-3">
-          <a href="/" className="rounded-lg p-2 hover:bg-zinc-800">
+          <a href="/dashboard" className="rounded-lg p-2 hover:bg-zinc-800">
             <ArrowLeft className="h-5 w-5" />
           </a>
           <h1 className="text-lg font-semibold">Configuración</h1>

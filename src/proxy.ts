@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const publicRoutes = ["/auth/signin", "/auth/error"];
+const publicRoutes = ["/auth/signin", "/auth/error", "/manifest.webmanifest", "/sw.js"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public routes and API auth routes
   if (
+    pathname === "/" ||
     publicRoutes.some((route) => pathname.startsWith(route)) ||
     pathname.startsWith("/api/auth")
   ) {

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Dashboard } from "@/features/dashboard/dashboard";
 import { OnboardingPage } from "@/features/onboarding/onboarding-page";
 
-export default async function Home() {
+export default async function DashboardPage() {
   const session = await auth();
 
   if (!session?.user) {

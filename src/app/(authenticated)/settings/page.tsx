@@ -22,7 +22,7 @@ export default async function SettingsPage() {
     },
   });
 
-  if (!membership) redirect("/");
+  if (!membership) redirect("/dashboard");
 
   return (
     <SettingsClient
