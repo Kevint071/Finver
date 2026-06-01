@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { requireAuth } from "@/lib/session";
 import { joinGroupSchema } from "@/lib/validations";
 import { joinGroup } from "@/server/services/group.service";
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.flatten().fieldErrors },
+        { error: z.flattenError(parsed.error).fieldErrors },
         { status: 400 }
       );
     }

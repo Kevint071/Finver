@@ -10,10 +10,9 @@ export async function POST(
   try {
     const [user, { id }] = await Promise.all([requireAuth(), params]);
 
-    await leaveGroup(id, user.id!);
-
+    // Run leaveGroup and cookies() in parallel — they are independent
+    const [, cookieStore] = await Promise.all([leaveGroup(id, user.id!), cookies()]);
     // Clear active group cookie if it was the left group
-    const cookieStore = await cookies();
     const activeGroup = cookieStore.get("finver-active-group");
     if (activeGroup?.value === id) {
       cookieStore.delete("finver-active-group");

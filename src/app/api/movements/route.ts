@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { requireAuth } from "@/lib/session";
 import { requireGroupMembership } from "@/server/dal";
 import { createMovement, getMovements } from "@/server/services/movement.service";
@@ -8,8 +9,7 @@ import { EventType } from "@/generated/prisma";
 
 export async function GET(request: Request) {
   try {
-    await requireAuth();
-    const membership = await requireGroupMembership();
+    const [, membership] = await Promise.all([requireAuth(), requireGroupMembership()]);
 
     const { searchParams } = new URL(request.url);
     const take = Number(searchParams.get("take")) || 50;
@@ -25,15 +25,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const user = await requireAuth();
-    const membership = await requireGroupMembership();
+    const [user, membership] = await Promise.all([requireAuth(), requireGroupMembership()]);
 
     const body = await request.json();
     const parsed = createMovementSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.flatten().fieldErrors },
+        { error: z.flattenError(parsed.error).fieldErrors },
         { status: 400 }
       );
     }

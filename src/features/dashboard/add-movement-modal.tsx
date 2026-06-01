@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useReducer } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 
@@ -14,47 +14,92 @@ interface AddMovementModalProps {
   categories: Category[];
 }
 
+type ModalState = {
+  type: "INCOME" | "EXPENSE";
+  categoryId: string;
+  amount: string;
+  description: string;
+  movementDate: string;
+  error: string;
+  loading: boolean;
+};
+
+type ModalAction =
+  | { type: "SET_TYPE"; value: "INCOME" | "EXPENSE" }
+  | { type: "SET_CATEGORY"; value: string }
+  | { type: "SET_AMOUNT"; value: string }
+  | { type: "SET_DESCRIPTION"; value: string }
+  | { type: "SET_DATE"; value: string }
+  | { type: "SUBMIT_START" }
+  | { type: "SUBMIT_ERROR"; message: string }
+  | { type: "SUBMIT_DONE" };
+
+function modalReducer(state: ModalState, action: ModalAction): ModalState {
+  switch (action.type) {
+    case "SET_TYPE":
+      return { ...state, type: action.value };
+    case "SET_CATEGORY":
+      return { ...state, categoryId: action.value };
+    case "SET_AMOUNT":
+      return { ...state, amount: action.value };
+    case "SET_DESCRIPTION":
+      return { ...state, description: action.value };
+    case "SET_DATE":
+      return { ...state, movementDate: action.value };
+    case "SUBMIT_START":
+      return { ...state, loading: true, error: "" };
+    case "SUBMIT_ERROR":
+      return { ...state, loading: false, error: action.message };
+    case "SUBMIT_DONE":
+      return { ...state, loading: false };
+    default:
+      return state;
+  }
+}
+
 export function AddMovementModal({ onClose, categories }: AddMovementModalProps) {
   const router = useRouter();
-  const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE");
-  const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "");
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
-  const [movementDate, setMovementDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [state, dispatch] = useReducer(modalReducer, {
+    type: "EXPENSE",
+    categoryId: categories[0]?.id ?? "",
+    amount: "",
+    description: "",
+    movementDate: new Date().toISOString().split("T")[0],
+    error: "",
+    loading: false,
+  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    dispatch({ type: "SUBMIT_START" });
 
     try {
       const res = await fetch("/api/movements", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type,
-          categoryId,
-          amount: parseInt(amount, 10),
-          description: description || undefined,
-          movementDate,
+          type: state.type,
+          categoryId: state.categoryId,
+          amount: parseInt(state.amount, 10),
+          description: state.description || undefined,
+          movementDate: state.movementDate,
         }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        setError(typeof data.error === "string" ? data.error : "Error al registrar");
+        dispatch({
+          type: "SUBMIT_ERROR",
+          message: typeof data.error === "string" ? data.error : "Error al registrar",
+        });
       } else {
+        dispatch({ type: "SUBMIT_DONE" });
         router.refresh();
         onClose();
       }
     } catch {
-      setError("Error de conexión");
+      dispatch({ type: "SUBMIT_ERROR", message: "Error de conexión" });
     }
-    setLoading(false);
   }
 
   return (
@@ -72,9 +117,9 @@ export function AddMovementModal({ onClose, categories }: AddMovementModalProps)
           <div className="flex rounded-lg border border-zinc-700 p-1">
             <button
               type="button"
-              onClick={() => setType("EXPENSE")}
+              onClick={() => dispatch({ type: "SET_TYPE", value: "EXPENSE" })}
               className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                type === "EXPENSE"
+                state.type === "EXPENSE"
                   ? "bg-red-400/10 text-red-400"
                   : "text-zinc-400 hover:text-zinc-200"
               }`}
@@ -83,9 +128,9 @@ export function AddMovementModal({ onClose, categories }: AddMovementModalProps)
             </button>
             <button
               type="button"
-              onClick={() => setType("INCOME")}
+              onClick={() => dispatch({ type: "SET_TYPE", value: "INCOME" })}
               className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                type === "INCOME"
+                state.type === "INCOME"
                   ? "bg-emerald-400/10 text-emerald-400"
                   : "text-zinc-400 hover:text-zinc-200"
               }`}
@@ -102,8 +147,8 @@ export function AddMovementModal({ onClose, categories }: AddMovementModalProps)
             <input
               id="amount"
               type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              value={state.amount}
+              onChange={(e) => dispatch({ type: "SET_AMOUNT", value: e.target.value })}
               placeholder="0"
               className="mt-1 block w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none"
               required
@@ -118,8 +163,8 @@ export function AddMovementModal({ onClose, categories }: AddMovementModalProps)
             </label>
             <select
               id="category"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
+              value={state.categoryId}
+              onChange={(e) => dispatch({ type: "SET_CATEGORY", value: e.target.value })}
               className="mt-1 block w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:outline-none"
               required
             >
@@ -142,8 +187,8 @@ export function AddMovementModal({ onClose, categories }: AddMovementModalProps)
             <input
               id="description"
               type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={state.description}
+              onChange={(e) => dispatch({ type: "SET_DESCRIPTION", value: e.target.value })}
               placeholder="Descripción breve"
               className="mt-1 block w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none"
               maxLength={200}
@@ -158,21 +203,21 @@ export function AddMovementModal({ onClose, categories }: AddMovementModalProps)
             <input
               id="date"
               type="date"
-              value={movementDate}
-              onChange={(e) => setMovementDate(e.target.value)}
+              value={state.movementDate}
+              onChange={(e) => dispatch({ type: "SET_DATE", value: e.target.value })}
               className="mt-1 block w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:outline-none"
               required
             />
           </div>
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {state.error && <p className="text-sm text-red-400">{state.error}</p>}
 
           <button
             type="submit"
-            disabled={loading || categories.length === 0}
+            disabled={state.loading || categories.length === 0}
             className="w-full rounded-lg bg-white px-4 py-3 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-200 disabled:opacity-50"
           >
-            {loading ? "Registrando..." : "Registrar movimiento"}
+            {state.loading ? "Registrando..." : "Registrar movimiento"}
           </button>
         </form>
       </div>

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { requireAuth } from "@/lib/session";
 import { requireGroupMembership } from "@/server/dal";
 import {
@@ -41,7 +42,7 @@ export async function PATCH(
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.flatten().fieldErrors },
+        { error: z.flattenError(parsed.error).fieldErrors },
         { status: 400 }
       );
     }

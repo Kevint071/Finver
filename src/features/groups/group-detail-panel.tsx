@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useReducer } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Copy, RefreshCw, Pencil, Check, X, Crown, Shield, Users } from "lucide-react";
 
 function getRoleIcon(role: string) {
@@ -38,76 +39,111 @@ interface GroupDetailPanelProps {
   onRenamed: (newName: string) => void;
 }
 
+type PanelState = {
+  copied: boolean;
+  renaming: boolean;
+  newName: string;
+  renameLoading: boolean;
+  inviteCode: string | null;
+};
+
+type PanelAction =
+  | { type: "COPY_START" }
+  | { type: "COPY_RESET" }
+  | { type: "RENAME_START"; currentName: string }
+  | { type: "RENAME_CANCEL" }
+  | { type: "RENAME_NAME_CHANGE"; name: string }
+  | { type: "RENAME_SUBMIT" }
+  | { type: "RENAME_DONE" }
+  | { type: "INVITE_CODE_UPDATED"; code: string };
+
+const initialPanelState: PanelState = {
+  copied: false,
+  renaming: false,
+  newName: "",
+  renameLoading: false,
+  inviteCode: null,
+};
+
+function panelReducer(state: PanelState, action: PanelAction): PanelState {
+  switch (action.type) {
+    case "COPY_START":
+      return { ...state, copied: true };
+    case "COPY_RESET":
+      return { ...state, copied: false };
+    case "RENAME_START":
+      return { ...state, renaming: true, newName: action.currentName };
+    case "RENAME_CANCEL":
+      return { ...state, renaming: false };
+    case "RENAME_NAME_CHANGE":
+      return { ...state, newName: action.name };
+    case "RENAME_SUBMIT":
+      return { ...state, renameLoading: true };
+    case "RENAME_DONE":
+      return { ...state, renaming: false, renameLoading: false };
+    case "INVITE_CODE_UPDATED":
+      return { ...state, inviteCode: action.code };
+    default:
+      return state;
+  }
+}
+
 export function GroupDetailPanel({
   groupId,
   currentUserId,
   userRole,
   onRenamed,
 }: GroupDetailPanelProps) {
-  const [details, setDetails] = useState<GroupDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
-  const [renaming, setRenaming] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [renameLoading, setRenameLoading] = useState(false);
+  const [state, dispatch] = useReducer(panelReducer, initialPanelState);
+
+  const { data: details, isLoading } = useQuery<GroupDetails>({
+    queryKey: ["group-details", groupId],
+    queryFn: async () => {
+      const res = await fetch(`/api/groups/${groupId}/details`);
+      if (!res.ok) throw new Error("Failed to fetch group details");
+      return res.json();
+    },
+  });
 
   const canManage = userRole === "OWNER" || userRole === "ADMIN";
-
-  useEffect(() => {
-    let cancelled = false;
-    async function fetchDetails() {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/groups/${groupId}/details`);
-        if (res.ok && !cancelled) {
-          const data = await res.json();
-          setDetails(data);
-        }
-      } catch {
-        // silently fail
-      }
-      if (!cancelled) setLoading(false);
-    }
-    fetchDetails();
-    return () => { cancelled = true; };
-  }, [groupId]);
+  const inviteCode = state.inviteCode ?? details?.inviteCode ?? "";
 
   async function handleCopyCode() {
-    if (!details) return;
-    await navigator.clipboard.writeText(details.inviteCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (!inviteCode) return;
+    await navigator.clipboard.writeText(inviteCode);
+    dispatch({ type: "COPY_START" });
+    setTimeout(() => dispatch({ type: "COPY_RESET" }), 2000);
   }
 
   async function handleRegenerateCode() {
     const res = await fetch("/api/groups/invite/regenerate", { method: "POST" });
     if (res.ok) {
       const data = await res.json();
-      setDetails((prev) => prev ? { ...prev, inviteCode: data.inviteCode } : prev);
+      dispatch({ type: "INVITE_CODE_UPDATED", code: data.inviteCode });
     }
   }
 
   async function handleRename() {
-    if (!newName.trim()) return;
-    setRenameLoading(true);
+    if (!state.newName.trim()) return;
+    dispatch({ type: "RENAME_SUBMIT" });
     try {
       const res = await fetch(`/api/groups/${groupId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName.trim() }),
+        body: JSON.stringify({ name: state.newName.trim() }),
       });
       if (res.ok) {
-        setDetails((prev) => prev ? { ...prev, name: newName.trim() } : prev);
-        onRenamed(newName.trim());
-        setRenaming(false);
+        onRenamed(state.newName.trim());
+        dispatch({ type: "RENAME_DONE" });
+      } else {
+        dispatch({ type: "RENAME_DONE" });
       }
     } catch {
-      // silently fail
+      dispatch({ type: "RENAME_DONE" });
     }
-    setRenameLoading(false);
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="mt-3 border-t border-zinc-800/60 pt-3">
         <div className="flex items-center justify-center py-4">
@@ -125,31 +161,33 @@ export function GroupDetailPanel({
       {/* Group name with rename */}
       {canManage && (
         <div className="flex items-center gap-2">
-          {renaming ? (
+          {state.renaming ? (
             <div className="flex flex-1 items-center gap-2">
               <input
                 type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
+                value={state.newName}
+                onChange={(e) =>
+                  dispatch({ type: "RENAME_NAME_CHANGE", name: e.target.value })
+                }
                 className="flex-1 rounded-lg border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100 focus:border-zinc-500 focus:outline-none"
                 maxLength={50}
                 aria-label="Nuevo nombre del grupo"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleRename();
-                  if (e.key === "Escape") setRenaming(false);
+                  if (e.key === "Escape") dispatch({ type: "RENAME_CANCEL" });
                 }}
               />
               <button
                 type="button"
                 onClick={handleRename}
-                disabled={renameLoading || !newName.trim()}
+                disabled={state.renameLoading || !state.newName.trim()}
                 className="rounded-lg p-1.5 text-emerald-400 hover:bg-zinc-800 disabled:opacity-50"
               >
                 <Check className="size-3.5" />
               </button>
               <button
                 type="button"
-                onClick={() => setRenaming(false)}
+                onClick={() => dispatch({ type: "RENAME_CANCEL" })}
                 className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800"
               >
                 <X className="size-3.5" />
@@ -158,10 +196,9 @@ export function GroupDetailPanel({
           ) : (
             <button
               type="button"
-              onClick={() => {
-                setNewName(details.name);
-                setRenaming(true);
-              }}
+              onClick={() =>
+                dispatch({ type: "RENAME_START", currentName: details.name })
+              }
               className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
             >
               <Pencil className="size-3" />
@@ -176,7 +213,7 @@ export function GroupDetailPanel({
         <p className="text-xs font-medium text-zinc-500">Código de invitación</p>
         <div className="flex items-center gap-2">
           <code className="flex-1 rounded-lg bg-zinc-800 px-3 py-2 text-sm font-mono text-zinc-200">
-            {details.inviteCode}
+            {inviteCode}
           </code>
           <button
             type="button"
@@ -197,7 +234,7 @@ export function GroupDetailPanel({
             </button>
           )}
         </div>
-        {copied && <p className="text-xs text-emerald-400">Copiado</p>}
+        {state.copied && <p className="text-xs text-emerald-400">Copiado</p>}
       </div>
 
       {/* Members */}

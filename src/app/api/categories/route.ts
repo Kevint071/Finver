@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { requireAuth } from "@/lib/session";
 import { requireRole, requireGroupMembership } from "@/server/dal";
 import { createCategory, getActiveCategories } from "@/server/services/category.service";
@@ -8,8 +9,7 @@ import { MemberRole, EventType } from "@/generated/prisma";
 
 export async function GET() {
   try {
-    await requireAuth();
-    const membership = await requireGroupMembership();
+    const [, membership] = await Promise.all([requireAuth(), requireGroupMembership()]);
     const categories = await getActiveCategories(membership.groupId);
     return NextResponse.json(categories);
   } catch (error) {
@@ -20,15 +20,17 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const user = await requireAuth();
-    const membership = await requireRole([MemberRole.OWNER, MemberRole.ADMIN]);
+    const [user, membership] = await Promise.all([
+      requireAuth(),
+      requireRole([MemberRole.OWNER, MemberRole.ADMIN]),
+    ]);
 
     const body = await request.json();
     const parsed = createCategorySchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.flatten().fieldErrors },
+        { error: z.flattenError(parsed.error).fieldErrors },
         { status: 400 }
       );
     }
