@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "set NODE_TLS_REJECT_UNAUTHORIZED=0&& next dev",
+    "dev": "next dev",
+    "dev:zscaler": "set NODE_EXTRA_CA_CERTS=./zscaler-root.pem&& next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
