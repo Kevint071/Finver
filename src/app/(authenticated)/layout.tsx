@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Header } from "@/features/header/header";
+import { getCurrentUserMembership } from "@/server/dal";
 
 export default async function AuthenticatedLayout({
   children,
@@ -14,18 +14,15 @@ export default async function AuthenticatedLayout({
     redirect("/auth/signin");
   }
 
-  const membership = await prisma.groupMember.findFirst({
-    where: { userId: session.user.id },
-    include: { group: true },
-  });
+  const membership = await getCurrentUserMembership();
 
   return (
     <div className="flex min-h-screen flex-col">
       <Header
-        groupName={membership?.group.name ?? "Finver"}
+        groupName={membership?.group.name ?? null}
         userName={session.user.name ?? null}
         userImage={session.user.image ?? null}
-        userRole={membership?.role ?? "MEMBER"}
+        userRole={membership?.role ?? null}
       />
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
         {children}

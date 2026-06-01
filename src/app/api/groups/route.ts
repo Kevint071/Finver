@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/session";
-import { requireGroupMembership, requireRole } from "@/server/dal";
+import { requireGroupMembership } from "@/server/dal";
 import { createGroupSchema } from "@/lib/validations";
 import { createGroup, getGroupWithMembers } from "@/server/services/group.service";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
@@ -18,6 +19,16 @@ export async function POST(request: Request) {
     }
 
     const group = await createGroup(parsed.data.name, user.id!);
+
+    // Set as active group
+    const cookieStore = await cookies();
+    cookieStore.set("finver-active-group", group.id, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365,
+    });
+
     return NextResponse.json(group, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Internal error";

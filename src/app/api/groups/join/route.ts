@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/session";
 import { joinGroupSchema } from "@/lib/validations";
 import { joinGroup } from "@/server/services/group.service";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
@@ -17,6 +18,16 @@ export async function POST(request: Request) {
     }
 
     const result = await joinGroup(parsed.data.inviteCode, user.id!);
+
+    // Set as active group
+    const cookieStore = await cookies();
+    cookieStore.set("finver-active-group", result.group.id, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365,
+    });
+
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Internal error";

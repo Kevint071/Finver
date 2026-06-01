@@ -1,8 +1,8 @@
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Dashboard } from "@/features/dashboard/dashboard";
 import { OnboardingPage } from "@/features/onboarding/onboarding-page";
+import { getCurrentUserMembership } from "@/server/dal";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -11,10 +11,7 @@ export default async function DashboardPage() {
     redirect("/auth/signin");
   }
 
-  const membership = await prisma.groupMember.findFirst({
-    where: { userId: session.user.id },
-    include: { group: true },
-  });
+  const membership = await getCurrentUserMembership();
 
   if (!membership) {
     return <OnboardingPage />;

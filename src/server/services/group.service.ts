@@ -3,14 +3,6 @@ import { MemberRole } from "@/generated/prisma";
 import { nanoid } from "@/lib/nanoid";
 
 export async function createGroup(name: string, userId: string) {
-  const existingMembership = await prisma.groupMember.findFirst({
-    where: { userId },
-  });
-
-  if (existingMembership) {
-    throw new Error("User already belongs to a group");
-  }
-
   const inviteCode = nanoid(8);
 
   const group = await prisma.group.create({
@@ -32,14 +24,6 @@ export async function createGroup(name: string, userId: string) {
 }
 
 export async function joinGroup(inviteCode: string, userId: string) {
-  const existingMembership = await prisma.groupMember.findFirst({
-    where: { userId },
-  });
-
-  if (existingMembership) {
-    throw new Error("User already belongs to a group");
-  }
-
   const group = await prisma.group.findUnique({
     where: { inviteCode },
     include: { _count: { select: { members: true } } },
@@ -123,4 +107,24 @@ export async function transferOwnership(
       data: { role: MemberRole.ADMIN },
     }),
   ]);
+}
+
+export async function deleteGroup(groupId: string, userId: string) {
+  const group = await prisma.group.findUnique({
+    where: { id: groupId },
+  });
+
+  if (!group) {
+    throw new Error("Grupo no encontrado");
+  }
+
+  if (group.ownerId !== userId) {
+    throw new Error("Solo el owner puede eliminar el grupo");
+  }
+
+  await prisma.group.delete({
+    where: { id: groupId },
+  });
+
+  return { success: true };
 }

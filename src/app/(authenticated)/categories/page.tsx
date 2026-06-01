@@ -1,19 +1,24 @@
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { getActiveCategories } from "@/server/services/category.service";
 import { CategoriesClient } from "@/features/categories/categories-client";
+import { getCurrentUserMembership } from "@/server/dal";
+import { NoGroupState } from "@/features/groups/no-group-state";
 
 export default async function CategoriesPage() {
   const session = await auth();
   if (!session?.user) redirect("/auth/signin");
 
-  const membership = await prisma.groupMember.findFirst({
-    where: { userId: session.user.id },
-    include: { group: true },
-  });
+  const membership = await getCurrentUserMembership();
 
-  if (!membership) redirect("/dashboard");
+  if (!membership) {
+    return (
+      <NoGroupState
+        title="Sin grupo"
+        description="Necesitas pertenecer a un grupo para ver y gestionar categorías. Crea un grupo o únete a uno existente."
+      />
+    );
+  }
 
   const categories = await getActiveCategories(membership.groupId);
 
