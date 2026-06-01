@@ -42,3 +42,8 @@ yarn-error.log*
 # prisma
 /src/generated
 next-env.d.ts
+
+#specs
+/**openspec**
+**opsx**
+**SKILL.md**
