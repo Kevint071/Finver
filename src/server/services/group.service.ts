@@ -38,18 +38,19 @@ export async function joinGroup(inviteCode: string, userId: string) {
     throw new Error("El grupo alcanzó el límite de miembros");
   }
 
-  const member = await prisma.groupMember.create({
-    data: {
-      groupId: group.id,
-      userId,
-      role: MemberRole.MEMBER,
-    },
-  });
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { name: true },
-  });
+  const [member, user] = await Promise.all([
+    prisma.groupMember.create({
+      data: {
+        groupId: group.id,
+        userId,
+        role: MemberRole.MEMBER,
+      },
+    }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    }),
+  ]);
 
   await createAuditLog(
     group.id,

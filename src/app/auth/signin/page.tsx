@@ -1,4 +1,10 @@
 import { auth } from "@/lib/auth";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Iniciar sesión - Finver",
+  description: "Inicia sesión en Finver para gestionar tus finanzas familiares",
+};
 
 export default async function SignInPage() {
   const session = await auth();
@@ -14,7 +20,7 @@ export default async function SignInPage() {
       <div className="w-full max-w-sm space-y-8">
         {/* Branding */}
         <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/20">
+          <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/20">
             <span className="text-2xl font-bold text-white">F</span>
           </div>
           <h1 className="mt-4 text-3xl font-bold text-white">Finver</h1>
@@ -40,7 +46,7 @@ export default async function SignInPage() {
               type="submit"
               className="flex w-full items-center justify-center gap-3 rounded-xl bg-white px-4 py-3.5 text-sm font-medium text-zinc-900 shadow-sm transition-all hover:bg-zinc-100 hover:shadow-md active:scale-[0.98]"
             >
-              <svg className="h-5 w-5" viewBox="0 0 24 24">
+              <svg className="size-5" viewBox="0 0 24 24">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                   fill="#4285F4"

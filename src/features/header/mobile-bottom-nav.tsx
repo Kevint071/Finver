@@ -30,7 +30,7 @@ export function MobileBottomNav() {
                   : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
-              <Icon className="h-5 w-5" />
+              <Icon className="size-5" />
               <span>{label}</span>
             </Link>
           );

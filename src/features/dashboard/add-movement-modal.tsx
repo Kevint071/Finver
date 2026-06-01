@@ -56,16 +56,14 @@ export function AddMovementModal({ onClose }: AddMovementModalProps) {
       if (!res.ok) {
         const data = await res.json();
         setError(typeof data.error === "string" ? data.error : "Error al registrar");
-        return;
+      } else {
+        router.refresh();
+        onClose();
       }
-
-      router.refresh();
-      onClose();
     } catch {
       setError("Error de conexión");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }
 
   return (
@@ -73,8 +71,8 @@ export function AddMovementModal({ onClose }: AddMovementModalProps) {
       <div className="w-full max-w-lg rounded-t-2xl border border-zinc-800 bg-zinc-900 p-6 sm:rounded-2xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Nuevo movimiento</h2>
-          <button onClick={onClose} className="rounded-lg p-1 hover:bg-zinc-800">
-            <X className="h-5 w-5" />
+          <button type="button" onClick={onClose} className="rounded-lg p-1 hover:bg-zinc-800">
+            <X className="size-5" />
           </button>
         </div>
 

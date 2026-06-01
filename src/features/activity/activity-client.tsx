@@ -64,16 +64,16 @@ export function ActivityClient({ logs }: ActivityClientProps) {
               {dayLogs.map((log) => (
                 <div
                   key={log.id}
-                  className="flex items-start gap-3 rounded-lg px-2 py-2"
+                  className="flex items-start gap-3 rounded-lg p-2"
                 >
                   {log.performer.image ? (
                     <img
                       src={log.performer.image}
                       alt={log.performer.name ?? ""}
-                      className="h-7 w-7 shrink-0 rounded-full border border-zinc-700"
+                      className="size-7 shrink-0 rounded-full border border-zinc-700"
                     />
                   ) : (
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-xs font-medium text-zinc-400">
+                    <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-xs font-medium text-zinc-400">
                       {log.performer.name?.charAt(0)?.toUpperCase() ?? "U"}
                     </div>
                   )}

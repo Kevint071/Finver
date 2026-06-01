@@ -15,6 +15,28 @@ import {
 import { GroupActions } from "./group-actions";
 import { GroupDetailPanel } from "./group-detail-panel";
 
+function getRoleIcon(role: string) {
+  switch (role) {
+    case "OWNER":
+      return <Crown className="size-3.5 text-amber-400" />;
+    case "ADMIN":
+      return <Shield className="size-3.5 text-blue-400" />;
+    default:
+      return <Users className="size-3.5 text-zinc-400" />;
+  }
+}
+
+function getRoleLabel(role: string) {
+  switch (role) {
+    case "OWNER":
+      return "Propietario";
+    case "ADMIN":
+      return "Admin";
+    default:
+      return "Miembro";
+  }
+}
+
 interface GroupItem {
   id: string;
   name: string;
@@ -58,9 +80,8 @@ export function GroupsClient({
       if (res.ok) router.refresh();
     } catch {
       // silently fail
-    } finally {
-      setSwitching(null);
     }
+    setSwitching(null);
   }
 
   async function handleLeave(groupId: string) {
@@ -77,10 +98,9 @@ export function GroupsClient({
       }
     } catch {
       alert("Error de conexión");
-    } finally {
-      setLeaving(null);
-      setConfirmAction(null);
     }
+    setLeaving(null);
+    setConfirmAction(null);
   }
 
   async function handleDelete(groupId: string) {
@@ -97,32 +117,9 @@ export function GroupsClient({
       }
     } catch {
       alert("Error de conexión");
-    } finally {
-      setDeleting(null);
-      setConfirmAction(null);
     }
-  }
-
-  function getRoleIcon(role: string) {
-    switch (role) {
-      case "OWNER":
-        return <Crown className="h-3.5 w-3.5 text-amber-400" />;
-      case "ADMIN":
-        return <Shield className="h-3.5 w-3.5 text-blue-400" />;
-      default:
-        return <Users className="h-3.5 w-3.5 text-zinc-400" />;
-    }
-  }
-
-  function getRoleLabel(role: string) {
-    switch (role) {
-      case "OWNER":
-        return "Propietario";
-      case "ADMIN":
-        return "Admin";
-      default:
-        return "Miembro";
-    }
+    setDeleting(null);
+    setConfirmAction(null);
   }
 
   return (
@@ -136,10 +133,11 @@ export function GroupsClient({
           </p>
         </div>
         <button
+          type="button"
           onClick={() => setShowCreate(!showCreate)}
           className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-200"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="size-4" />
           <span className="hidden sm:inline">Nuevo</span>
         </button>
       </div>
@@ -170,8 +168,16 @@ export function GroupsClient({
             >
               {/* Group info row - clickable to expand */}
               <div
+                role="button"
+                tabIndex={0}
                 className="flex items-center justify-between gap-3 cursor-pointer"
                 onClick={() => setExpandedGroupId(isExpanded ? null : group.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setExpandedGroupId(isExpanded ? null : group.id);
+                  }
+                }}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div
@@ -189,7 +195,7 @@ export function GroupsClient({
                         {displayName}
                       </p>
                       {isActive && (
-                        <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                        <CheckCircle2 className="size-4 shrink-0 text-emerald-400" />
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
@@ -212,6 +218,7 @@ export function GroupsClient({
                 <div className="flex items-center gap-2 shrink-0">
                   {!isActive && (
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSwitch(group.id);
@@ -227,7 +234,7 @@ export function GroupsClient({
                     </button>
                   )}
                   <ChevronDown
-                    className={`h-4 w-4 text-zinc-500 transition-transform ${
+                    className={`size-4 text-zinc-500 transition-transform ${
                       isExpanded ? "rotate-180" : ""
                     }`}
                   />
@@ -250,6 +257,7 @@ export function GroupsClient({
               <div className="mt-3 flex items-center justify-end border-t border-zinc-800/60 pt-3">
                 {isOwner ? (
                   <button
+                    type="button"
                     onClick={() =>
                       setConfirmAction({
                         type: "delete",
@@ -259,11 +267,12 @@ export function GroupsClient({
                     }
                     className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-950/30"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="size-3.5" />
                     Eliminar grupo
                   </button>
                 ) : (
                   <button
+                    type="button"
                     onClick={() =>
                       setConfirmAction({
                         type: "leave",
@@ -273,7 +282,7 @@ export function GroupsClient({
                     }
                     className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-950/30"
                   >
-                    <LogOut className="h-3.5 w-3.5" />
+                    <LogOut className="size-3.5" />
                     Abandonar
                   </button>
                 )}
@@ -288,11 +297,11 @@ export function GroupsClient({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
           <div className="w-full max-w-sm rounded-2xl border border-zinc-800 bg-zinc-900 p-6 space-y-4 shadow-xl">
             <div className="text-center space-y-2">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-950/40">
+              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-red-950/40">
                 {confirmAction.type === "delete" ? (
-                  <Trash2 className="h-6 w-6 text-red-400" />
+                  <Trash2 className="size-6 text-red-400" />
                 ) : (
-                  <LogOut className="h-6 w-6 text-red-400" />
+                  <LogOut className="size-6 text-red-400" />
                 )}
               </div>
               <h3 className="text-base font-semibold text-zinc-100">
@@ -322,12 +331,14 @@ export function GroupsClient({
             </div>
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => setConfirmAction(null)}
                 className="flex-1 rounded-lg border border-zinc-700 px-4 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800"
               >
                 Cancelar
               </button>
               <button
+                type="button"
                 onClick={() =>
                   confirmAction.type === "delete"
                     ? handleDelete(confirmAction.groupId)

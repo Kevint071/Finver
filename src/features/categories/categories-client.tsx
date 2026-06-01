@@ -33,10 +33,11 @@ export function CategoriesClient({ categories: initialCategories, userRole }: Ca
       if (res.ok) {
         setCategories((prev) => prev.filter((c) => c.id !== categoryId));
       }
-    } finally {
-      setIsDeactivating(false);
-      setConfirmId(null);
+    } catch {
+      // silently fail
     }
+    setIsDeactivating(false);
+    setConfirmId(null);
   }
 
   return (
@@ -49,7 +50,7 @@ export function CategoriesClient({ categories: initialCategories, userRole }: Ca
 
       {categories.length === 0 ? (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-8 text-center">
-          <Tag className="mx-auto h-10 w-10 text-zinc-600" />
+          <Tag className="mx-auto size-10 text-zinc-600" />
           <p className="mt-3 text-sm text-zinc-400">No hay categorías aún</p>
           <p className="mt-1 text-xs text-zinc-500">
             {canManage
@@ -65,8 +66,8 @@ export function CategoriesClient({ categories: initialCategories, userRole }: Ca
               className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900 p-4"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800">
-                  <Tag className="h-4 w-4 text-zinc-400" />
+                <div className="flex size-8 items-center justify-center rounded-full bg-zinc-800">
+                  <Tag className="size-4 text-zinc-400" />
                 </div>
                 <span className="text-sm font-medium">{category.name}</span>
               </div>
@@ -76,6 +77,7 @@ export function CategoriesClient({ categories: initialCategories, userRole }: Ca
                   {confirmId === category.id ? (
                     <div className="flex items-center gap-2">
                       <button
+                        type="button"
                         onClick={() => handleDeactivate(category.id)}
                         disabled={isDeactivating}
                         className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/20 disabled:opacity-50"
@@ -83,6 +85,7 @@ export function CategoriesClient({ categories: initialCategories, userRole }: Ca
                         {isDeactivating ? "..." : "Confirmar"}
                       </button>
                       <button
+                        type="button"
                         onClick={() => setConfirmId(null)}
                         className="rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-400 hover:bg-zinc-800"
                       >
@@ -91,11 +94,12 @@ export function CategoriesClient({ categories: initialCategories, userRole }: Ca
                     </div>
                   ) : (
                     <button
+                      type="button"
                       onClick={() => setConfirmId(category.id)}
                       className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-800 hover:text-red-400"
                       aria-label={`Desactivar ${category.name}`}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="size-4" />
                     </button>
                   )}
                 </>

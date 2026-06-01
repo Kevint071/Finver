@@ -13,9 +13,9 @@ export function NoGroupState({
     <div className="flex flex-col items-center justify-center py-12">
       <div className="w-full max-w-sm space-y-6 text-center">
         <div>
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800">
+          <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-zinc-800">
             <svg
-              className="h-8 w-8 text-zinc-400"
+              className="size-8 text-zinc-400"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}

@@ -35,9 +35,8 @@ export function GroupList({ groups, activeGroupId }: GroupListProps) {
       }
     } catch {
       // silently fail
-    } finally {
-      setSwitching(null);
     }
+    setSwitching(null);
   }
 
   return (
@@ -46,6 +45,7 @@ export function GroupList({ groups, activeGroupId }: GroupListProps) {
         const isActive = group.id === activeGroupId;
         return (
           <button
+            type="button"
             key={group.id}
             onClick={() => handleSwitch(group.id)}
             disabled={switching !== null}

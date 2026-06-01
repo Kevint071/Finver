@@ -43,17 +43,15 @@ export function CreateCategoryForm({ onCreated }: CreateCategoryFormProps) {
       if (!res.ok) {
         const data = await res.json();
         setError(data.error?.name?.[0] ?? "Error al crear categoría");
-        return;
+      } else {
+        const category = await res.json();
+        onCreated({ id: category.id, name: category.name, isActive: category.isActive });
+        setName("");
       }
-
-      const category = await res.json();
-      onCreated({ id: category.id, name: category.name, isActive: category.isActive });
-      setName("");
     } catch {
       setError("Error de conexión");
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   }
 
   return (
@@ -64,6 +62,7 @@ export function CreateCategoryForm({ onCreated }: CreateCategoryFormProps) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nueva categoría..."
+          aria-label="Nombre de nueva categoría"
           maxLength={30}
           className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
         />
@@ -76,7 +75,7 @@ export function CreateCategoryForm({ onCreated }: CreateCategoryFormProps) {
         disabled={isSubmitting}
         className="flex items-center gap-2 rounded-lg bg-zinc-100 px-4 py-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-white disabled:opacity-50"
       >
-        <Plus className="h-4 w-4" />
+        <Plus className="size-4" />
         <span className="hidden sm:inline">Crear</span>
       </button>
     </form>

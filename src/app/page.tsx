@@ -1,5 +1,11 @@
 import { auth } from "@/lib/auth";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Finver - Finanzas familiares simplificadas",
+  description: "Controla los ingresos y gastos de tu grupo familiar en un solo lugar.",
+};
 
 export default async function LandingPage() {
   const session = await auth();
@@ -7,10 +13,10 @@ export default async function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <header className="border-b border-zinc-800/50 px-4 py-4">
+      <header className="border-b border-zinc-800/50 p-4">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-emerald-400 to-emerald-600">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-linear-to-br from-emerald-400 to-emerald-600">
               <span className="text-sm font-bold text-white">F</span>
             </div>
             <span className="text-lg font-semibold text-zinc-50">Finver</span>
@@ -36,7 +42,7 @@ export default async function LandingPage() {
       {/* Hero */}
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-16 text-center">
         <div className="mx-auto max-w-2xl">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/20">
+          <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/20">
             <span className="text-3xl font-bold text-white">F</span>
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-zinc-50 sm:text-5xl">
@@ -88,7 +94,7 @@ export default async function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-zinc-800/50 px-4 py-6 text-center">
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-zinc-500" suppressHydrationWarning>
           Finver © {new Date().getFullYear()}
         </p>
       </footer>

@@ -8,7 +8,7 @@ export default function AuthenticatedLoading() {
           <div className="flex items-center gap-3">
             <div className="h-4 w-16 animate-pulse rounded bg-zinc-800 hidden md:block" />
             <div className="h-4 w-16 animate-pulse rounded bg-zinc-800 hidden md:block" />
-            <div className="h-8 w-8 animate-pulse rounded-full bg-zinc-800" />
+            <div className="size-8 animate-pulse rounded-full bg-zinc-800" />
           </div>
         </div>
       </div>

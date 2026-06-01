@@ -24,13 +24,15 @@ interface DashboardClientProps {
   recentMovements: Movement[];
 }
 
+const copFormatter = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
 function formatCOP(amount: number) {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+  return copFormatter.format(amount);
 }
 
 export function DashboardClient({
@@ -57,7 +59,7 @@ export function DashboardClient({
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
             <div className="flex items-center gap-2">
-              <ArrowDownLeft className="h-4 w-4 text-emerald-400" />
+              <ArrowDownLeft className="size-4 text-emerald-400" />
               <span className="text-xs text-zinc-400">Ingresos mes</span>
             </div>
             <p className="mt-2 text-lg font-semibold text-emerald-400">
@@ -66,7 +68,7 @@ export function DashboardClient({
           </div>
           <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
             <div className="flex items-center gap-2">
-              <ArrowUpRight className="h-4 w-4 text-red-400" />
+              <ArrowUpRight className="size-4 text-red-400" />
               <span className="text-xs text-zinc-400">Gastos mes</span>
             </div>
             <p className="mt-2 text-lg font-semibold text-red-400">
@@ -113,9 +115,9 @@ export function DashboardClient({
                       }`}
                     >
                       {movement.type === "INCOME" ? (
-                        <ArrowDownLeft className="h-4 w-4" />
+                        <ArrowDownLeft className="size-4" />
                       ) : (
-                        <ArrowUpRight className="h-4 w-4" />
+                        <ArrowUpRight className="size-4" />
                       )}
                     </div>
                     <div>
@@ -141,10 +143,11 @@ export function DashboardClient({
 
         {/* FAB */}
         <button
+          type="button"
           onClick={() => setShowAddModal(true)}
-          className="fixed bottom-20 right-6 md:bottom-6 flex h-14 w-14 items-center justify-center rounded-full bg-white text-zinc-900 shadow-lg transition-transform hover:scale-105 active:scale-95"
+          className="fixed bottom-20 right-6 md:bottom-6 flex size-14 items-center justify-center rounded-full bg-white text-zinc-900 shadow-lg transition-transform hover:scale-105 active:scale-95"
         >
-          <Plus className="h-6 w-6" />
+          <Plus className="size-6" />
         </button>
 
         {showAddModal && (

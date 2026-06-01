@@ -4,13 +4,21 @@ import { redirect } from "next/navigation";
 import { GroupsClient } from "@/features/groups/groups-client";
 import { getUserMemberships, getActiveGroupId } from "@/server/dal";
 import { NoGroupState } from "@/features/groups/no-group-state";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Grupos - Finver",
+  description: "Administra tus grupos familiares",
+};
 
 export default async function GroupsPage() {
   const session = await auth();
   if (!session?.user) redirect("/auth/signin");
 
-  const memberships = await getUserMemberships();
-  const activeGroupId = await getActiveGroupId();
+  const [memberships, activeGroupId] = await Promise.all([
+    getUserMemberships(),
+    getActiveGroupId(),
+  ]);
 
   if (memberships.length === 0) {
     return (

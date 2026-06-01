@@ -11,12 +11,14 @@ export function GroupActions() {
       {mode === "choose" && (
         <div className="space-y-3">
           <button
+            type="button"
             onClick={() => setMode("create")}
             className="w-full rounded-lg bg-white px-4 py-3 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-200"
           >
             Crear grupo
           </button>
           <button
+            type="button"
             onClick={() => setMode("join")}
             className="w-full rounded-lg border border-zinc-700 px-4 py-3 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-800"
           >
@@ -52,16 +54,14 @@ function CreateGroupForm({ onBack }: { onBack: () => void }) {
       if (!res.ok) {
         const data = await res.json();
         setError(data.error || "Error al crear el grupo");
-        return;
+      } else {
+        setName("");
+        router.refresh();
       }
-
-      setName("");
-      router.refresh();
     } catch {
       setError("Error de conexión");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }
 
   return (
@@ -125,15 +125,13 @@ function JoinGroupForm({ onBack }: { onBack: () => void }) {
       if (!res.ok) {
         const data = await res.json();
         setError(data.error || "Error al unirse");
-        return;
+      } else {
+        router.refresh();
       }
-
-      router.refresh();
     } catch {
       setError("Error de conexión");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }
 
   return (

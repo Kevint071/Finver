@@ -25,7 +25,7 @@ export const createMovementSchema = z.object({
   categoryId: z.string().min(1, "La categoría es requerida"),
   amount: z.number().int().positive("El monto debe ser positivo"),
   description: z.string().max(200, "Máximo 200 caracteres").optional(),
-  movementDate: z.string().datetime().or(z.string().date()),
+  movementDate: z.iso.datetime().or(z.iso.date()),
 });
 
 export const updateMovementSchema = z.object({
@@ -33,7 +33,7 @@ export const updateMovementSchema = z.object({
   categoryId: z.string().min(1).optional(),
   amount: z.number().int().positive("El monto debe ser positivo").optional(),
   description: z.string().max(200, "Máximo 200 caracteres").optional(),
-  movementDate: z.string().datetime().or(z.string().date()).optional(),
+  movementDate: z.iso.datetime().or(z.iso.date()).optional(),
 });
 
 export const changeRoleSchema = z.object({

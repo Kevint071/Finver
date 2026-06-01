@@ -28,6 +28,7 @@ export function AvatarMenu({ userName, userImage, signOutAction }: AvatarMenuPro
   return (
     <div className="relative ml-3" ref={menuRef}>
       <button
+        type="button"
         onClick={() => setOpen(!open)}
         className="flex items-center rounded-full focus:outline-none focus:ring-2 focus:ring-zinc-600"
       >
@@ -35,10 +36,10 @@ export function AvatarMenu({ userName, userImage, signOutAction }: AvatarMenuPro
           <img
             src={userImage}
             alt={userName ?? "Usuario"}
-            className="h-8 w-8 rounded-full border border-zinc-700"
+            className="size-8 rounded-full border border-zinc-700"
           />
         ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-xs font-medium text-zinc-300">
+          <div className="flex size-8 items-center justify-center rounded-full bg-zinc-800 text-xs font-medium text-zinc-300">
             {userName?.charAt(0)?.toUpperCase() ?? "U"}
           </div>
         )}
@@ -51,7 +52,7 @@ export function AvatarMenu({ userName, userImage, signOutAction }: AvatarMenuPro
               type="submit"
               className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-zinc-800 transition-colors"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="size-4" />
               Cerrar sesión
             </button>
           </form>

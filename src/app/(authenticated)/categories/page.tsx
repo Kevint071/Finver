@@ -4,6 +4,12 @@ import { getActiveCategories } from "@/server/services/category.service";
 import { CategoriesClient } from "@/features/categories/categories-client";
 import { getCurrentUserMembership } from "@/server/dal";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Categorías - Finver",
+  description: "Gestión de categorías de movimientos",
+};
 
 export default async function CategoriesPage() {
   const session = await auth();

@@ -31,12 +31,14 @@ function groupByDay(movements: Movement[]): Map<string, Movement[]> {
   return groups;
 }
 
+const copFormatter = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  minimumFractionDigits: 0,
+});
+
 function formatAmount(amount: number): string {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-  }).format(amount);
+  return copFormatter.format(amount);
 }
 
 export function MovementsClient({ movements }: MovementsClientProps) {
@@ -63,6 +65,7 @@ export function MovementsClient({ movements }: MovementsClientProps) {
               {dayMovements.map((m) => (
                 <div key={m.id}>
                   <button
+                    type="button"
                     onClick={() =>
                       setExpandedId(expandedId === m.id ? null : m.id)
                     }
@@ -76,9 +79,9 @@ export function MovementsClient({ movements }: MovementsClientProps) {
                       }`}
                     >
                       {m.type === "INCOME" ? (
-                        <ArrowUpRight className="h-4 w-4" />
+                        <ArrowUpRight className="size-4" />
                       ) : (
-                        <ArrowDownRight className="h-4 w-4" />
+                        <ArrowDownRight className="size-4" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">

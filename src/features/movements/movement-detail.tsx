@@ -18,12 +18,14 @@ interface MovementDetailProps {
   movement: Movement;
 }
 
+const copFormatter = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  minimumFractionDigits: 0,
+});
+
 function formatAmount(amount: number): string {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-  }).format(amount);
+  return copFormatter.format(amount);
 }
 
 export function MovementDetail({ movement }: MovementDetailProps) {
@@ -66,10 +68,10 @@ export function MovementDetail({ movement }: MovementDetailProps) {
             <img
               src={movement.creator.image}
               alt={movement.creator.name ?? ""}
-              className="h-5 w-5 rounded-full border border-zinc-700"
+              className="size-5 rounded-full border border-zinc-700"
             />
           ) : (
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-medium text-zinc-400">
+            <div className="flex size-5 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-medium text-zinc-400">
               {movement.creator.name?.charAt(0)?.toUpperCase() ?? "U"}
             </div>
           )}
@@ -87,16 +89,19 @@ export function MovementDetail({ movement }: MovementDetailProps) {
                 type="date"
                 value={dateValue}
                 onChange={(e) => setDateValue(e.target.value)}
+                aria-label="Fecha del movimiento"
                 className="rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-600"
               />
               <button
+                type="button"
                 onClick={handleSaveDate}
                 disabled={saving}
                 className="rounded p-1 text-emerald-400 hover:bg-zinc-800"
               >
-                <Check className="h-3.5 w-3.5" />
+                <Check className="size-3.5" />
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setEditing(false);
                   setDateValue(
@@ -105,17 +110,18 @@ export function MovementDetail({ movement }: MovementDetailProps) {
                 }}
                 className="rounded p-1 text-zinc-500 hover:bg-zinc-800"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="size-3.5" />
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-1">
               <span className="text-zinc-300">{displayDate}</span>
               <button
+                type="button"
                 onClick={() => setEditing(true)}
                 className="rounded p-1 text-zinc-500 hover:text-zinc-300"
               >
-                <Pencil className="h-3 w-3" />
+                <Pencil className="size-3" />
               </button>
             </div>
           )}

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { NavLink } from "./nav-link";
 import { AvatarMenu } from "./avatar-menu";
 import { signOut } from "@/lib/auth";
@@ -21,9 +22,9 @@ export function Header({ groupName, userName, userImage }: HeaderProps) {
   return (
     <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
-        <a href="/dashboard" className="text-lg font-semibold text-zinc-50 hover:text-white">
+        <Link href="/dashboard" className="text-lg font-semibold text-zinc-50 hover:text-white">
           {groupName ?? "Finver"}
-        </a>
+        </Link>
 
         {/* Desktop navigation */}
         <nav className="hidden items-center gap-1 md:flex">
