@@ -81,7 +81,9 @@ function CreateGroupForm({ onBack }: { onBack: () => void }) {
           maxLength={50}
         />
       </div>
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      <div className="min-h-5">
+        {error && <p className="text-sm text-red-400">{error}</p>}
+      </div>
       <div className="flex gap-2">
         <button
           type="button"

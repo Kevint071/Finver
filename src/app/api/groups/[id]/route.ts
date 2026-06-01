@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/session";
 import { requireRole } from "@/server/dal";
-import { updateGroupName, deleteGroup } from "@/server/services/group.service";
+import { renameGroup, deleteGroup } from "@/server/services/group.service";
 import { updateGroupSchema } from "@/lib/validations";
 import { MemberRole } from "@/generated/prisma";
 import { cookies } from "next/headers";
@@ -11,8 +11,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAuth();
-    const membership = await requireRole([MemberRole.OWNER]);
+    const user = await requireAuth();
+    const membership = await requireRole([MemberRole.OWNER, MemberRole.ADMIN]);
     const { id } = await params;
 
     if (membership.groupId !== id) {
@@ -29,7 +29,7 @@ export async function PATCH(
       );
     }
 
-    const group = await updateGroupName(id, parsed.data.name);
+    const group = await renameGroup(id, parsed.data.name, user.id!);
     return NextResponse.json(group);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Internal error";

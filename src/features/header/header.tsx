@@ -13,7 +13,7 @@ interface HeaderProps {
 const navLinks = [
   { href: "/dashboard", label: "Inicio" },
   { href: "/categories", label: "Categorías" },
-  { href: "/settings", label: "Ajustes" },
+  { href: "/groups", label: "Grupos" },
 ];
 
 export function Header({ groupName, userName, userImage }: HeaderProps) {

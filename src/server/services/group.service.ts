@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { MemberRole } from "@/generated/prisma";
+import { MemberRole, EventType } from "@/generated/prisma";
 import { nanoid } from "@/lib/nanoid";
 
 export async function createGroup(name: string, userId: string) {
@@ -147,4 +147,67 @@ export async function deleteGroup(groupId: string, userId: string) {
   });
 
   return { success: true };
+}
+
+export async function renameGroup(groupId: string, newName: string, userId: string) {
+  const membership = await prisma.groupMember.findUnique({
+    where: { groupId_userId: { groupId, userId } },
+  });
+
+  if (!membership || membership.role === MemberRole.MEMBER) {
+    throw new Error("No tienes permisos para renombrar este grupo");
+  }
+
+  const group = await prisma.group.findUnique({ where: { id: groupId } });
+  if (!group) throw new Error("Grupo no encontrado");
+
+  const oldName = group.name;
+  const updated = await updateGroupName(groupId, newName);
+
+  await prisma.auditLog.create({
+    data: {
+      groupId,
+      performedBy: userId,
+      eventType: EventType.GROUP_RENAMED,
+      description: `Grupo renombrado de "${oldName}" a "${newName}"`,
+    },
+  });
+
+  return updated;
+}
+
+export async function getGroupDetails(groupId: string, userId: string) {
+  const membership = await prisma.groupMember.findUnique({
+    where: { groupId_userId: { groupId, userId } },
+  });
+
+  if (!membership) {
+    throw new Error("No eres miembro de este grupo");
+  }
+
+  const group = await prisma.group.findUnique({
+    where: { id: groupId },
+    include: {
+      members: {
+        include: { user: { select: { id: true, name: true, email: true, image: true } } },
+      },
+    },
+  });
+
+  if (!group) throw new Error("Grupo no encontrado");
+
+  return {
+    id: group.id,
+    name: group.name,
+    inviteCode: group.inviteCode,
+    members: group.members.map((m) => ({
+      id: m.id,
+      userId: m.user.id,
+      name: m.user.name,
+      email: m.user.email,
+      image: m.user.image,
+      role: m.role,
+    })),
+    currentUserRole: membership.role,
+  };
 }

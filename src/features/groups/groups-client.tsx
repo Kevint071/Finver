@@ -10,8 +10,10 @@ import {
   LogOut,
   Trash2,
   CheckCircle2,
+  ChevronDown,
 } from "lucide-react";
 import { GroupActions } from "./group-actions";
+import { GroupDetailPanel } from "./group-detail-panel";
 
 interface GroupItem {
   id: string;
@@ -36,6 +38,8 @@ export function GroupsClient({
   const [switching, setSwitching] = useState<string | null>(null);
   const [leaving, setLeaving] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [expandedGroupId, setExpandedGroupId] = useState<string | null>(null);
+  const [groupNames, setGroupNames] = useState<Record<string, string>>({});
   const [confirmAction, setConfirmAction] = useState<{
     type: "leave" | "delete";
     groupId: string;
@@ -152,6 +156,8 @@ export function GroupsClient({
         {groups.map((group) => {
           const isActive = group.id === activeGroupId;
           const isOwner = group.role === "OWNER";
+          const isExpanded = expandedGroupId === group.id;
+          const displayName = groupNames[group.id] || group.name;
 
           return (
             <section
@@ -162,8 +168,11 @@ export function GroupsClient({
                   : "border-zinc-800 bg-zinc-900/60"
               }`}
             >
-              {/* Group info row */}
-              <div className="flex items-center justify-between gap-3">
+              {/* Group info row - clickable to expand */}
+              <div
+                className="flex items-center justify-between gap-3 cursor-pointer"
+                onClick={() => setExpandedGroupId(isExpanded ? null : group.id)}
+              >
                 <div className="flex items-center gap-3 min-w-0">
                   <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
@@ -171,13 +180,13 @@ export function GroupsClient({
                     }`}
                   >
                     <span className="text-sm font-bold text-zinc-300">
-                      {group.name.charAt(0).toUpperCase()}
+                      {displayName.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-zinc-100 truncate">
-                        {group.name}
+                        {displayName}
                       </p>
                       {isActive && (
                         <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
@@ -203,7 +212,10 @@ export function GroupsClient({
                 <div className="flex items-center gap-2 shrink-0">
                   {!isActive && (
                     <button
-                      onClick={() => handleSwitch(group.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSwitch(group.id);
+                      }}
                       disabled={switching !== null}
                       className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                         switching === group.id
@@ -214,8 +226,25 @@ export function GroupsClient({
                       {switching === group.id ? "..." : "Activar"}
                     </button>
                   )}
+                  <ChevronDown
+                    className={`h-4 w-4 text-zinc-500 transition-transform ${
+                      isExpanded ? "rotate-180" : ""
+                    }`}
+                  />
                 </div>
               </div>
+
+              {/* Expandable detail panel */}
+              {isExpanded && (
+                <GroupDetailPanel
+                  groupId={group.id}
+                  currentUserId={currentUserId}
+                  userRole={group.role}
+                  onRenamed={(newName) =>
+                    setGroupNames((prev) => ({ ...prev, [group.id]: newName }))
+                  }
+                />
+              )}
 
               {/* Danger action row */}
               <div className="mt-3 flex items-center justify-end border-t border-zinc-800/60 pt-3">
@@ -225,7 +254,7 @@ export function GroupsClient({
                       setConfirmAction({
                         type: "delete",
                         groupId: group.id,
-                        groupName: group.name,
+                        groupName: displayName,
                       })
                     }
                     className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-950/30"
@@ -239,7 +268,7 @@ export function GroupsClient({
                       setConfirmAction({
                         type: "leave",
                         groupId: group.id,
-                        groupName: group.name,
+                        groupName: displayName,
                       })
                     }
                     className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-950/30"
