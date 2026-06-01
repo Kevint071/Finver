@@ -1,11 +1,9 @@
 "use client";
 
-import { Copy, RefreshCw, LogOut, Plus, Trash2, Users } from "lucide-react";
+import { Copy, RefreshCw, LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MemberRole } from "@/generated/prisma";
-import { GroupList } from "@/features/groups/group-list";
-import { GroupActions } from "@/features/groups/group-actions";
 
 interface Member {
   id: string;
@@ -19,20 +17,11 @@ interface Group {
   inviteCode: string;
 }
 
-interface GroupItem {
-  id: string;
-  name: string;
-  role: string;
-  memberCount: number;
-}
-
 interface SettingsClientProps {
   group: Group;
   members: Member[];
   currentUserId: string;
   currentRole: MemberRole;
-  allGroups?: GroupItem[];
-  activeGroupId?: string;
 }
 
 export function SettingsClient({
@@ -40,13 +29,10 @@ export function SettingsClient({
   members,
   currentUserId,
   currentRole,
-  allGroups,
-  activeGroupId,
 }: SettingsClientProps) {
   const router = useRouter();
   const [inviteCode, setInviteCode] = useState(group.inviteCode);
   const [copied, setCopied] = useState(false);
-  const [showGroupActions, setShowGroupActions] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -91,33 +77,6 @@ export function SettingsClient({
 
   return (
     <div className="space-y-6">
-      {/* Mis Grupos */}
-      <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-zinc-400" />
-            <h2 className="text-sm font-medium text-zinc-400">Mis grupos</h2>
-          </div>
-          <button
-            onClick={() => setShowGroupActions(!showGroupActions)}
-            className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 transition-colors"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {showGroupActions ? "Cancelar" : "Crear o unirme"}
-          </button>
-        </div>
-
-        {allGroups && allGroups.length > 0 && (
-          <GroupList groups={allGroups} activeGroupId={activeGroupId ?? null} />
-        )}
-
-        {showGroupActions && (
-          <div className="border-t border-zinc-800 pt-4">
-            <GroupActions />
-          </div>
-        )}
-      </section>
-
       {/* Grupo activo - Info & Invitación */}
       <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-4 space-y-4">
         <div className="flex items-center justify-between">
@@ -186,34 +145,43 @@ export function SettingsClient({
         </div>
       </section>
 
-      {/* Zona peligrosa - solo owners */}
+      {/* Zona peligrosa */}
       {isOwner && (
-        <section className="rounded-xl border border-red-900/30 bg-red-950/10 p-4 space-y-3">
-          <h2 className="text-sm font-medium text-red-400">Zona peligrosa</h2>
+        <section className="rounded-xl border border-red-900/30 bg-red-950/10 p-4 sm:p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Trash2 className="h-4 w-4 text-red-400" />
+            <h2 className="text-sm font-medium text-red-400">Zona peligrosa</h2>
+          </div>
+
           {!showDeleteConfirm ? (
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="flex items-center gap-2 rounded-lg border border-red-900/50 px-3 py-2 text-sm text-red-400 transition-colors hover:bg-red-950/30"
-            >
-              <Trash2 className="h-4 w-4" />
-              Eliminar grupo &ldquo;{group.name}&rdquo;
-            </button>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-zinc-300">
-                ¿Estás seguro? Se eliminarán todos los movimientos, categorías y miembros del grupo. Esta acción no se puede deshacer.
+            <div className="flex flex-col items-center gap-3 rounded-lg border border-red-900/20 bg-red-950/10 p-4 text-center">
+              <p className="text-sm text-zinc-400">
+                Eliminar permanentemente este grupo y todos sus datos.
               </p>
-              <div className="flex gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-full sm:w-auto rounded-lg border border-red-900/50 px-4 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-950/30"
+              >
+                Eliminar &ldquo;{group.name}&rdquo;
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4 rounded-lg border border-red-900/30 bg-red-950/20 p-4">
+              <p className="text-sm text-zinc-300 text-center">
+                ¿Estás seguro? Se eliminarán todos los movimientos, categorías y
+                miembros del grupo. Esta acción no se puede deshacer.
+              </p>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 rounded-lg border border-zinc-700 px-3 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
+                  className="flex-1 rounded-lg border border-zinc-700 px-4 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleDeleteGroup}
                   disabled={deleting}
-                  className="flex-1 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                  className="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                 >
                   {deleting ? "Eliminando..." : "Confirmar eliminación"}
                 </button>

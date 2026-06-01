@@ -109,6 +109,26 @@ export async function transferOwnership(
   ]);
 }
 
+export async function leaveGroup(groupId: string, userId: string) {
+  const membership = await prisma.groupMember.findUnique({
+    where: { groupId_userId: { groupId, userId } },
+  });
+
+  if (!membership) {
+    throw new Error("No eres miembro de este grupo");
+  }
+
+  if (membership.role === MemberRole.OWNER) {
+    throw new Error("El owner no puede abandonar el grupo. Transfiere la propiedad o elimínalo.");
+  }
+
+  await prisma.groupMember.delete({
+    where: { groupId_userId: { groupId, userId } },
+  });
+
+  return { success: true };
+}
+
 export async function deleteGroup(groupId: string, userId: string) {
   const group = await prisma.group.findUnique({
     where: { id: groupId },

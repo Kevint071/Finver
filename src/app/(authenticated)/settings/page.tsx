@@ -36,28 +36,12 @@ export default async function SettingsPage() {
 
   if (!group) redirect("/dashboard");
 
-  // Get member counts for all groups
-  const groupIds = memberships.map((m) => m.groupId);
-  const groupCounts = await prisma.groupMember.groupBy({
-    by: ["groupId"],
-    where: { groupId: { in: groupIds } },
-    _count: { id: true },
-  });
-  const countMap = new Map(groupCounts.map((g) => [g.groupId, g._count.id]));
-
   return (
     <SettingsClient
       group={group}
       members={group.members}
       currentUserId={session.user.id!}
       currentRole={activeMembership.role}
-      allGroups={memberships.map((m) => ({
-        id: m.groupId,
-        name: m.group.name,
-        role: m.role,
-        memberCount: countMap.get(m.groupId) ?? 0,
-      }))}
-      activeGroupId={activeMembership.groupId}
     />
   );
 }
