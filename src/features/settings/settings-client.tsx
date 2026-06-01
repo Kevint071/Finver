@@ -1,8 +1,8 @@
 "use client";
 
-import { Copy, RefreshCw, LogOut, Trash2 } from "lucide-react";
+import { Copy, RefreshCw, Users } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { MemberRole } from "@/generated/prisma";
 
 interface Member {
@@ -30,11 +30,8 @@ export function SettingsClient({
   currentUserId,
   currentRole,
 }: SettingsClientProps) {
-  const router = useRouter();
   const [inviteCode, setInviteCode] = useState(group.inviteCode);
   const [copied, setCopied] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
   const isOwner = currentRole === "OWNER";
 
@@ -49,29 +46,6 @@ export function SettingsClient({
     if (res.ok) {
       const data = await res.json();
       setInviteCode(data.inviteCode);
-    }
-  }
-
-  async function handleDeleteGroup() {
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/groups/${group.id}`, { method: "DELETE" });
-      if (res.ok) {
-        router.refresh();
-      }
-    } catch {
-      // silently fail
-    } finally {
-      setDeleting(false);
-      setShowDeleteConfirm(false);
-    }
-  }
-
-  async function handleSignOut() {
-    const res = await fetch("/api/auth/signout", { method: "POST" });
-    if (res.ok) {
-      router.push("/auth/signin");
-      router.refresh();
     }
   }
 
@@ -145,60 +119,17 @@ export function SettingsClient({
         </div>
       </section>
 
-      {/* Zona peligrosa */}
-      {isOwner && (
-        <section className="rounded-xl border border-red-900/30 bg-red-950/10 p-4 sm:p-5 space-y-4">
-          <div className="flex items-center gap-2">
-            <Trash2 className="h-4 w-4 text-red-400" />
-            <h2 className="text-sm font-medium text-red-400">Zona peligrosa</h2>
-          </div>
-
-          {!showDeleteConfirm ? (
-            <div className="flex flex-col items-center gap-3 rounded-lg border border-red-900/20 bg-red-950/10 p-4 text-center">
-              <p className="text-sm text-zinc-400">
-                Eliminar permanentemente este grupo y todos sus datos.
-              </p>
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="w-full sm:w-auto rounded-lg border border-red-900/50 px-4 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-950/30"
-              >
-                Eliminar &ldquo;{group.name}&rdquo;
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4 rounded-lg border border-red-900/30 bg-red-950/20 p-4">
-              <p className="text-sm text-zinc-300 text-center">
-                ¿Estás seguro? Se eliminarán todos los movimientos, categorías y
-                miembros del grupo. Esta acción no se puede deshacer.
-              </p>
-              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 rounded-lg border border-zinc-700 px-4 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleDeleteGroup}
-                  disabled={deleting}
-                  className="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
-                >
-                  {deleting ? "Eliminando..." : "Confirmar eliminación"}
-                </button>
-              </div>
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* Cerrar sesión */}
-      <button
-        onClick={handleSignOut}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-900/50 bg-red-950/20 px-4 py-3 text-sm font-medium text-red-400 transition-colors hover:bg-red-950/40"
+      {/* Administrar grupos */}
+      <Link
+        href="/groups"
+        className="flex w-full items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-4 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-800"
       >
-        <LogOut className="h-4 w-4" />
-        Cerrar sesión
-      </button>
+        <Users className="h-5 w-5 text-zinc-400" />
+        <div>
+          <p>Administrar grupos</p>
+          <p className="text-xs font-normal text-zinc-500">Ver, cambiar o eliminar tus grupos</p>
+        </div>
+      </Link>
     </div>
   );
 }

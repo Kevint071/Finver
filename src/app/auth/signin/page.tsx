@@ -14,7 +14,7 @@ export default async function SignInPage() {
       <div className="w-full max-w-sm space-y-8">
         {/* Branding */}
         <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/20">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/20">
             <span className="text-2xl font-bold text-white">F</span>
           </div>
           <h1 className="mt-4 text-3xl font-bold text-white">Finver</h1>

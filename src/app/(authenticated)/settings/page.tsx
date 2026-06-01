@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { SettingsClient } from "@/features/settings/settings-client";
 import { getUserMemberships, getActiveGroupId } from "@/server/dal";
-import { NoGroupState } from "@/features/groups/no-group-state";
+import Link from "next/link";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -14,10 +14,18 @@ export default async function SettingsPage() {
 
   if (memberships.length === 0) {
     return (
-      <NoGroupState
-        title="Sin grupo"
-        description="Necesitas pertenecer a un grupo para acceder a la configuración completa. Crea un grupo o únete a uno existente."
-      />
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <h2 className="text-xl font-bold">Sin grupo</h2>
+        <p className="mt-2 text-sm text-zinc-400">
+          Necesitas pertenecer a un grupo para acceder a la configuración.
+        </p>
+        <Link
+          href="/dashboard"
+          className="mt-6 rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-200"
+        >
+          Ir a inicio
+        </Link>
+      </div>
     );
   }
 
