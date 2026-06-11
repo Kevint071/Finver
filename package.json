@@ -8,6 +8,7 @@
     "dev:zscaler": "set NODE_EXTRA_CA_CERTS=./zscaler-root.pem&& next dev",
     "build": "next build",
     "start": "next start",
+    "start:zscaler": "set NODE_EXTRA_CA_CERTS=./zscaler-root.pem&& next start",
     "lint": "eslint",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

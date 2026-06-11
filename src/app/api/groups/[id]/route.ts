@@ -6,6 +6,7 @@ import { renameGroup, deleteGroup } from "@/server/services/group.service";
 import { updateGroupSchema } from "@/lib/validations";
 import { MemberRole } from "@/generated/prisma";
 import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
 
 export async function PATCH(
   request: Request,
@@ -45,13 +46,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const [user, membership, { id }] = await Promise.all([
-      requireAuth(),
-      requireRole([MemberRole.OWNER]),
-      params,
-    ]);
+    const [user, { id }] = await Promise.all([requireAuth(), params]);
 
-    if (membership.groupId !== id) {
+    const membership = await prisma.groupMember.findUnique({
+      where: { groupId_userId: { groupId: id, userId: user.id! } },
+    });
+
+    if (!membership || membership.role !== MemberRole.OWNER) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
