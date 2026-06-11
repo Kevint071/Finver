@@ -21,7 +21,6 @@ export default async function ActivityPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-lg font-semibold text-zinc-50">Actividad</h1>
       <ActivityClient logs={logs} />
     </div>
   );

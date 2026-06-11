@@ -20,7 +20,6 @@ export default async function MovementsPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-lg font-semibold text-zinc-50">Movimientos</h1>
       <MovementsClient movements={movements} />
     </div>
   );
