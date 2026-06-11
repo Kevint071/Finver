@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { DateSeparator } from "@/features/shared/date-separator";
-import { MovementDetail } from "./movement-detail";
 
 interface Movement {
   id: string;
@@ -42,8 +41,6 @@ function formatAmount(amount: number): string {
 }
 
 export function MovementsClient({ movements }: MovementsClientProps) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-
   if (movements.length === 0) {
     return (
       <p className="text-center text-sm text-zinc-500">
@@ -64,11 +61,8 @@ export function MovementsClient({ movements }: MovementsClientProps) {
             <div className="space-y-1">
               {dayMovements.map((m) => (
                 <div key={m.id}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setExpandedId(expandedId === m.id ? null : m.id)
-                    }
+                  <Link
+                    href={`/movements/${m.id}/edit`}
                     className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-zinc-800/50"
                   >
                     <div
@@ -100,8 +94,7 @@ export function MovementsClient({ movements }: MovementsClientProps) {
                       {m.type === "INCOME" ? "+" : "-"}
                       {formatAmount(m.amount)}
                     </span>
-                  </button>
-                  {expandedId === m.id && <MovementDetail movement={m} />}
+                  </Link>
                 </div>
               ))}
             </div>

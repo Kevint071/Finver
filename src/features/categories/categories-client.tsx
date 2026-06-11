@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Tag, Trash2 } from "lucide-react";
+import { Tag, Trash2, Pencil, Check, X } from "lucide-react";
 import { CreateCategoryForm } from "./create-category-form";
 
 interface Category {
@@ -19,11 +19,65 @@ export function CategoriesClient({ categories: initialCategories, userRole }: Ca
   const [categories, setCategories] = useState(initialCategories);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [isDeactivating, setIsDeactivating] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const [editError, setEditError] = useState<string | null>(null);
+  const [isSavingRename, setIsSavingRename] = useState(false);
 
   const canManage = userRole === "OWNER" || userRole === "ADMIN";
 
   async function handleCategoryCreated(newCategory: Category) {
     setCategories((prev) => [...prev, newCategory].sort((a, b) => a.name.localeCompare(b.name)));
+  }
+
+  function startRename(category: Category) {
+    setConfirmId(null);
+    setEditingId(category.id);
+    setEditingName(category.name);
+    setEditError(null);
+  }
+
+  function cancelRename() {
+    setEditingId(null);
+    setEditingName("");
+    setEditError(null);
+  }
+
+  async function handleRename(categoryId: string) {
+    const trimmed = editingName.trim();
+    if (!trimmed) {
+      setEditError("El nombre es requerido");
+      return;
+    }
+    if (trimmed.length > 30) {
+      setEditError("Máximo 30 caracteres");
+      return;
+    }
+    setIsSavingRename(true);
+    try {
+      const res = await fetch(`/api/categories/${categoryId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: trimmed }),
+      });
+      if (res.ok) {
+        const updated: Category = await res.json();
+        setCategories((prev) =>
+          prev
+            .map((c) => (c.id === categoryId ? { ...c, name: updated.name } : c))
+            .sort((a, b) => a.name.localeCompare(b.name))
+        );
+        setEditingId(null);
+        setEditingName("");
+        setEditError(null);
+      } else {
+        const data = await res.json();
+        setEditError(data.error?.name?.[0] ?? "Error al renombrar");
+      }
+    } catch {
+      setEditError("Error de red, intenta de nuevo");
+    }
+    setIsSavingRename(false);
   }
 
   async function handleDeactivate(categoryId: string) {
@@ -65,15 +119,62 @@ export function CategoriesClient({ categories: initialCategories, userRole }: Ca
               key={category.id}
               className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900 p-4"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-full bg-zinc-800">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-zinc-800">
                   <Tag className="size-4 text-zinc-400" />
                 </div>
-                <span className="text-sm font-medium">{category.name}</span>
+                {editingId === category.id ? (
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="text"
+                        value={editingName}
+                        onChange={(e) => {
+                          setEditingName(e.target.value);
+                          setEditError(null);
+                        }}
+                        maxLength={31}
+                        autoFocus
+                        aria-label="Nuevo nombre de categoría"
+                        className="min-w-0 flex-1 rounded border border-zinc-600 bg-zinc-800 px-2 py-1 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRename(category.id)}
+                        disabled={isSavingRename || !editingName.trim() || editingName.trim().length > 30}
+                        aria-label="Guardar nombre"
+                        className="rounded p-1 text-emerald-400 hover:bg-zinc-800 disabled:opacity-40"
+                      >
+                        <Check className="size-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={cancelRename}
+                        aria-label="Cancelar"
+                        className="rounded p-1 text-zinc-500 hover:bg-zinc-800"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
+                    {editError && (
+                      <p className="text-xs text-red-400">{editError}</p>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-sm font-medium">{category.name}</span>
+                )}
               </div>
 
-              {canManage && (
-                <>
+              {canManage && editingId !== category.id && (
+                <div className="ml-3 flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => startRename(category)}
+                    aria-label={`Renombrar ${category.name}`}
+                    className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                  >
+                    <Pencil className="size-4" />
+                  </button>
                   {confirmId === category.id ? (
                     <div className="flex items-center gap-2">
                       <button
@@ -102,7 +203,7 @@ export function CategoriesClient({ categories: initialCategories, userRole }: Ca
                       <Trash2 className="size-4" />
                     </button>
                   )}
-                </>
+                </div>
               )}
             </div>
           ))}

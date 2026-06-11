@@ -56,14 +56,31 @@ export async function PATCH(
 
     const movement = await updateMovement(id, updateData);
 
+    const changedFields: string[] = [];
+    if (parsed.data.amount !== undefined && parsed.data.amount !== existing.amount) {
+      changedFields.push("monto");
+    }
+    if (parsed.data.categoryId !== undefined && parsed.data.categoryId !== existing.categoryId) {
+      changedFields.push("categoría");
+    }
+    if (parsed.data.description !== undefined && parsed.data.description !== existing.description) {
+      changedFields.push("descripción");
+    }
+    if (parsed.data.movementDate && new Date(parsed.data.movementDate).toDateString() !== existing.movementDate.toDateString()) {
+      changedFields.push("fecha");
+    }
+
+    const changedSummary = changedFields.length > 0
+      ? `Campos modificados: ${changedFields.join(", ")}`
+      : "Sin cambios detectados";
+
     await createAuditLog(
       membership.groupId,
       user.id!,
       EventType.MOVEMENT_EDITED,
-      `Movimiento editado (ID: ${id})`
+      `Movimiento editado — ${changedSummary}`
     );
 
-    // Log date change specifically if movementDate was updated
     if (parsed.data.movementDate && new Date(parsed.data.movementDate).toDateString() !== existing.movementDate.toDateString()) {
       const oldDate = existing.movementDate.toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
       const newDate = new Date(parsed.data.movementDate).toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });

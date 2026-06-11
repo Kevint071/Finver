@@ -1,4 +1,3 @@
-import { requireAuth } from "@/lib/session";
 import { requireGroupMembership } from "@/server/dal";
 import { getMovements } from "@/server/services/movement.service";
 import { MovementsClient } from "@/features/movements/movements-client";
@@ -10,7 +9,6 @@ export const metadata: Metadata = {
 };
 
 export default async function MovementsPage() {
-  await requireAuth();
   const membership = await requireGroupMembership();
 
   const rawMovements = await getMovements(membership.groupId, { take: 100 });

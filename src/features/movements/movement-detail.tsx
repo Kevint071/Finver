@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
-import { Pencil, Check, X } from "lucide-react";
+import { Pencil } from "lucide-react";
 
 interface Movement {
   id: string;
@@ -17,6 +16,7 @@ interface Movement {
 
 interface MovementDetailProps {
   movement: Movement;
+  canEdit: boolean;
 }
 
 const copFormatter = new Intl.NumberFormat("es-CO", {
@@ -29,33 +29,7 @@ function formatAmount(amount: number): string {
   return copFormatter.format(amount);
 }
 
-export function MovementDetail({ movement }: MovementDetailProps) {
-  const router = useRouter();
-  const [editing, setEditing] = useState(false);
-  const [dateValue, setDateValue] = useState(
-    new Date(movement.movementDate).toISOString().split("T")[0]
-  );
-  const [saving, setSaving] = useState(false);
-
-  async function handleSaveDate() {
-    if (saving) return;
-    setSaving(true);
-    try {
-      const res = await fetch(`/api/movements/${movement.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ movementDate: dateValue }),
-      });
-      if (res.ok) {
-        setEditing(false);
-        router.refresh();
-      }
-    } catch {
-      // silently fail
-    }
-    setSaving(false);
-  }
-
+export function MovementDetail({ movement, canEdit }: MovementDetailProps) {
   const displayDate = new Date(movement.movementDate).toLocaleDateString(
     "es-CO",
     { day: "numeric", month: "long", year: "numeric" }
@@ -84,51 +58,10 @@ export function MovementDetail({ movement }: MovementDetailProps) {
           </span>
         </div>
 
-        {/* Date (editable) */}
+        {/* Date */}
         <div className="flex items-center gap-2">
           <span className="text-zinc-500">Fecha:</span>
-          {editing ? (
-            <div className="flex items-center gap-1">
-              <input
-                type="date"
-                value={dateValue}
-                onChange={(e) => setDateValue(e.target.value)}
-                aria-label="Fecha del movimiento"
-                className="rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-600"
-              />
-              <button
-                type="button"
-                onClick={handleSaveDate}
-                disabled={saving}
-                className="rounded p-1 text-emerald-400 hover:bg-zinc-800"
-              >
-                <Check className="size-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEditing(false);
-                  setDateValue(
-                    new Date(movement.movementDate).toISOString().split("T")[0]
-                  );
-                }}
-                className="rounded p-1 text-zinc-500 hover:bg-zinc-800"
-              >
-                <X className="size-3.5" />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1">
-              <span className="text-zinc-300">{displayDate}</span>
-              <button
-                type="button"
-                onClick={() => setEditing(true)}
-                className="rounded p-1 text-zinc-500 hover:text-zinc-300"
-              >
-                <Pencil className="size-3" />
-              </button>
-            </div>
-          )}
+          <span className="text-zinc-300">{displayDate}</span>
         </div>
 
         {/* Amount */}
@@ -154,6 +87,19 @@ export function MovementDetail({ movement }: MovementDetailProps) {
           <div className="flex items-center gap-2">
             <span className="text-zinc-500">Descripción:</span>
             <span className="text-zinc-300">{movement.description}</span>
+          </div>
+        )}
+
+        {/* Edit link */}
+        {canEdit && (
+          <div className="pt-1">
+            <Link
+              href={`/movements/${movement.id}/edit`}
+              className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+            >
+              <Pencil className="size-3" />
+              Editar
+            </Link>
           </div>
         )}
       </div>
