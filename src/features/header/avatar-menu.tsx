@@ -12,6 +12,7 @@ interface AvatarMenuProps {
 
 export function AvatarMenu({ userName, userImage, signOutAction }: AvatarMenuProps) {
   const [open, setOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,13 +34,14 @@ export function AvatarMenu({ userName, userImage, signOutAction }: AvatarMenuPro
         onClick={() => setOpen(!open)}
         className="flex items-center rounded-full focus:outline-none focus:ring-2 focus:ring-zinc-600"
       >
-        {userImage ? (
+        {userImage && !imageError ? (
           <Image
             src={userImage}
             alt={userName ?? "Usuario"}
             width={32}
             height={32}
             className="size-8 rounded-full border border-zinc-700"
+            onError={() => setImageError(true)}
           />
         ) : (
           <div className="flex size-8 items-center justify-center rounded-full bg-zinc-800 text-xs font-medium text-zinc-300">

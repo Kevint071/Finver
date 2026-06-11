@@ -21,8 +21,8 @@ const navLinks = [
 export function Header({ groupName, userName, userImage }: HeaderProps) {
   return (
     <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
-        <Link href="/dashboard" className="text-lg font-semibold text-zinc-50 hover:text-white">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+        <Link href="/dashboard" className="text-lg font-semibold text-zinc-50 hover:text-white shrink-0">
           {groupName ?? "Finver"}
         </Link>
 
@@ -33,6 +33,7 @@ export function Header({ groupName, userName, userImage }: HeaderProps) {
               {link.label}
             </NavLink>
           ))}
+          <div className="ml-2 h-5 w-px bg-zinc-700" aria-hidden />
           <AvatarMenu
             userName={userName}
             userImage={userImage}
